@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intro to Mechanistic Interpretability, Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+
+      --bg: #f7f4ef;
+      --surface: #fffdfa;
+      --surface2: #f2ece4;
+      --surface3: #ece3d8;
+      --surface-elevated: #fff8f0;
+      --border: rgba(53, 42, 33, 0.10);
+      --border-bright: rgba(53, 42, 33, 0.18);
+      --text: #2c241d;
+      --text-dim: #75685d;
+      --accent: #1e3a5f;
+      --accent-dim: rgba(30, 58, 95, 0.08);
+      --amber: #b57614;
+      --amber-dim: rgba(181, 118, 20, 0.10);
+      --sage: #5f7f55;
+      --sage-dim: rgba(95, 127, 85, 0.10);
+      --rose: #8f3f46;
+      --rose-dim: rgba(143, 63, 70, 0.08);
+      --teal: #0f766e;
+      --teal-dim: rgba(15, 118, 110, 0.08);
+      --shadow: 0 10px 30px rgba(35, 27, 20, 0.06);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161311;
+        --surface: #1f1a17;
+        --surface2: #28221d;
+        --surface3: #312922;
+        --surface-elevated: #241d18;
+        --border: rgba(255,255,255,0.07);
+        --border-bright: rgba(255,255,255,0.14);
+        --text: #efe6dc;
+        --text-dim: #b4a596;
+        --accent: #9fc0e8;
+        --accent-dim: rgba(159, 192, 232, 0.10);
+        --amber: #e4b55c;
+        --amber-dim: rgba(228, 181, 92, 0.10);
+        --sage: #a4c39a;
+        --sage-dim: rgba(164, 195, 154, 0.10);
+        --rose: #dfa1aa;
+        --rose-dim: rgba(223, 161, 170, 0.09);
+        --teal: #7dd3c8;
+        --teal-dim: rgba(125, 211, 200, 0.10);
+        --shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--text);
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 10% 0%, var(--accent-dim) 0%, transparent 35%),
+        radial-gradient(circle at 90% 20%, var(--amber-dim) 0%, transparent 30%),
+        repeating-linear-gradient(-45deg, transparent, transparent 42px, rgba(120, 100, 80, 0.03) 42px, rgba(120, 100, 80, 0.03) 43px);
+      padding: 40px;
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 0 40px;
+    }
+
+    .main { min-width: 0; }
+
+    .toc {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 14px 0;
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+    }
+    .toc-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc a {
+      display: block;
+      text-decoration: none;
+      color: var(--text-dim);
+      font-size: 12px;
+      line-height: 1.4;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border-left: 2px solid transparent;
+      margin-bottom: 2px;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .toc a:hover { background: var(--surface2); color: var(--text); }
+    .toc a.active { color: var(--text); border-left-color: var(--accent); background: color-mix(in srgb, var(--surface2) 78%, transparent); }
+
+    .hero {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--surface-elevated) 85%, var(--accent-dim)), color-mix(in srgb, var(--surface-elevated) 82%, var(--amber-dim)));
+      border: 1px solid color-mix(in srgb, var(--border) 60%, var(--accent) 18%);
+      box-shadow: var(--shadow);
+      border-radius: 20px;
+      padding: 34px 36px;
+      margin-bottom: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: auto -40px -50px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, var(--accent-dim), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .eyebrow::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    h1 {
+      font-size: clamp(40px, 5vw, 66px);
+      line-height: 0.95;
+      margin: 0 0 12px;
+      letter-spacing: -1.8px;
+      max-width: 980px;
+    }
+    .hero h1 .serif {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-style: italic;
+    }
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 16px;
+      max-width: 980px;
+      margin-bottom: 22px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      min-width: 0;
+    }
+    .card--hero {
+      background: color-mix(in srgb, var(--surface) 90%, var(--accent-dim));
+      border-color: color-mix(in srgb, var(--border) 60%, var(--accent) 20%);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+    .card--recessed {
+      background: var(--surface2);
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+    .label--accent { color: var(--accent); }
+    .label--amber { color: var(--amber); }
+    .label--sage { color: var(--sage); }
+    .label--rose { color: var(--rose); }
+    .label--teal { color: var(--teal); }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .mini {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .mini strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    .mini span {
+      color: var(--text-dim);
+      font-size: 12px;
+      display: block;
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin: 34px 0 18px;
+      scroll-margin-top: 28px;
+    }
+    .sec-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      min-width: 64px;
+    }
+    h2 {
+      font-size: clamp(28px, 3vw, 40px);
+      line-height: 1.05;
+      margin: 0;
+      letter-spacing: -1px;
+    }
+    h3 {
+      font-size: 20px;
+      line-height: 1.15;
+      margin: 0 0 10px;
+      letter-spacing: -0.4px;
+    }
+    p { margin: 0 0 12px; }
+    ul { margin: 0; padding-left: 18px; }
+    li { margin-bottom: 8px; }
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      background: var(--surface3);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .lead {
+      font-size: 18px;
+      color: color-mix(in srgb, var(--text) 88%, var(--text-dim));
+      max-width: 920px;
+      margin-bottom: 18px;
+    }
+
+    .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      gap: 16px;
+      min-width: 0;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .kpi {
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .kpi .num {
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -1px;
+    }
+    .kpi .meta {
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    .callout {
+      border-left: 3px solid var(--amber);
+      background: color-mix(in srgb, var(--surface) 88%, var(--amber-dim));
+      border-radius: 0 14px 14px 0;
+      padding: 16px 18px;
+      margin: 16px 0;
+    }
+
+    .quote {
+      font-family: var(--font-serif);
+      font-size: 30px;
+      line-height: 1.05;
+      letter-spacing: -0.5px;
+      padding: 22px 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .quote small {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 12px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      background: var(--surface-elevated);
+      z-index: 1;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+    }
+    tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--surface2) 42%, transparent); }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .badge::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .badge--accent { color: var(--accent); background: var(--accent-dim); border-color: color-mix(in srgb, var(--accent) 20%, transparent); }
+    .badge--amber { color: var(--amber); background: var(--amber-dim); border-color: color-mix(in srgb, var(--amber) 24%, transparent); }
+    .badge--sage { color: var(--sage); background: var(--sage-dim); border-color: color-mix(in srgb, var(--sage) 24%, transparent); }
+    .badge--rose { color: var(--rose); background: var(--rose-dim); border-color: color-mix(in srgb, var(--rose) 24%, transparent); }
+    .badge--teal { color: var(--teal); background: var(--teal-dim); border-color: color-mix(in srgb, var(--teal) 24%, transparent); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .mermaid-wrap {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .mermaid-controls {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      display: flex;
+      gap: 6px;
+      z-index: 3;
+    }
+    .mermaid-controls button {
+      border: 1px solid var(--border);
+      background: var(--surface-elevated);
+      color: var(--text);
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .mermaid-panzoom {
+      overflow: auto;
+      cursor: default;
+    }
+    .mermaid-stage {
+      transform-origin: center center;
+      transition: transform 0.18s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 0;
+    }
+    .mermaid {
+      min-width: 0;
+    }
+    .mermaid .nodeLabel { color: var(--text) !important; }
+    .mermaid .edgeLabel { color: var(--text-dim) !important; background-color: var(--bg) !important; }
+    .mermaid .edgeLabel rect { fill: var(--bg) !important; }
+    .mermaid .nodeLabel,
+    .mermaid .messageText {
+      font-family: var(--font-body) !important;
+    }
+    .mermaid .edgeLabel,
+    .mermaid .label foreignObject div {
+      font-family: var(--font-mono) !important;
+    }
+    .mermaid .node rect,
+    .mermaid .node polygon,
+    .mermaid .node circle {
+      stroke-width: 1.5px;
+    }
+
+    .footer-note {
+      margin-top: 26px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    @media (max-width: 1100px) {
+      .wrap { grid-template-columns: 1fr; }
+      .toc {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        max-height: none;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        margin: 0 -40px 18px;
+        padding: 12px 40px;
+      }
+      .toc-title { display: none; }
+      .toc a {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 6px 6px 0 0;
+        flex-shrink: 0;
+      }
+      .toc a.active {
+        border-left: none;
+        border-bottom-color: var(--accent);
+      }
+      .hero-grid,
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .hero-points { grid-template-columns: 1fr; }
+      .sec-head { scroll-margin-top: 58px; }
+    }
+
+    @media (max-width: 700px) {
+      body { padding: 22px; }
+      .toc { margin: 0 -22px 18px; padding: 12px 22px; }
+      .hero { padding: 24px 22px; }
+      .card, .kpi { padding: 16px; }
+      h1 { letter-spacing: -1.2px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc" id="toc">
+      <div class="toc-title">Contents</div>
+      <a href="#s1">1. What the lesson is really teaching</a>
+      <a href="#s2">2. The core transformer circuit story</a>
+      <a href="#s3">3. Skip trigrams vs induction heads</a>
+      <a href="#s4">4. TransformerLens mental model</a>
+      <a href="#s5">5. How the three sources line up</a>
+      <a href="#s6">6. Practical study guide</a>
+    </nav>
+
+    <div class="main">
+      <section class="hero">
+        <div class="eyebrow">Visual explainer · Week 4 mech interp synthesis</div>
+        <h1>Intro to <span class="serif">Mechanistic Interpretability</span>, explained as a circuit story</h1>
+        <p class="subtitle">
+          Built from three sources reviewed together: the <code>summarize --extract</code> YouTube transcript,
+          <code>interp.txt</code> from the ARENA chapter, and the 63-slide deck in <code>Intro to Mech Interp Week 4.pptx</code>.
+          The overlap is strong: all three converge on the same teaching arc, from virtual weights and attention circuits to induction heads, hooks, attribution, and ablation.
+        </p>
+
+        <div class="hero-grid">
+          <div class="card card--hero">
+            <div class="label label--accent">Bottom line</div>
+            <p class="lead">
+              The lesson is not just “use TransformerLens.” It teaches a way of seeing transformers as <strong>composable computational paths</strong>.
+              Once you treat the residual stream as a communication channel and heads as narrow algorithms, you can identify real circuits, test them causally, and explain in-context learning with concrete mechanisms.
+            </p>
+            <div class="hero-points">
+              <div class="mini">
+                <strong>Big picture</strong>
+                <span>Transformers can be decomposed into interpretable paths, not just treated as black boxes.</span>
+              </div>
+              <div class="mini">
+                <strong>Key mechanism</strong>
+                <span>Induction heads are the first non-trivial circuit that looks like genuine in-context learning.</span>
+              </div>
+              <div class="mini">
+                <strong>Main tool</strong>
+                <span>TransformerLens makes weights, activations, hooks, and interventions easy enough to inspect directly.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="kpi">
+              <div class="num">3</div>
+              <div class="meta">primary source streams triangulated, notes + slides + extracted transcript</div>
+            </div>
+            <div class="kpi">
+              <div class="num">63</div>
+              <div class="meta">slides extracted from the PPTX deck</div>
+            </div>
+            <div class="kpi">
+              <div class="num">4</div>
+              <div class="meta">lesson pillars, TransformerLens intro, induction heads, hooks, reverse-engineering circuits</div>
+            </div>
+            <div class="kpi">
+              <div class="num">1</div>
+              <div class="meta">central claim, induction heads provide concrete evidence for circuit-level in-context learning</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="s1" class="sec-head">
+        <div class="sec-num">01 / synthesis</div>
+        <h2>What the lesson is really teaching</h2>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="label label--sage">The shared arc across all sources</div>
+          <ul>
+            <li><strong>Start with transformer recall.</strong> Embedding and unembedding already capture next-token tendencies, especially bigram-like statistics in simpler settings.</li>
+            <li><strong>Introduce circuits.</strong> Attention can be factorized into <code>QK</code> and <code>OV</code>, and whole transformer behavior can be reasoned about as path composition.</li>
+            <li><strong>Show a simple circuit first.</strong> Skip trigrams explain how one-layer attention can implement useful but limited pattern completion.</li>
+            <li><strong>Then show the real star.</strong> Two-layer induction circuits explain copying and the emergence of stronger in-context learning.</li>
+            <li><strong>Finally operationalize it.</strong> TransformerLens turns the theory into things you can inspect, cache, score, ablate, and attribute.</li>
+          </ul>
+        </div>
+        <div class="card card--recessed">
+          <div class="label label--amber">Why the transcript adds value beyond the slides</div>
+          <p>The transcript fills in the intuition that the slides compress. It repeatedly emphasizes:</p>
+          <ul>
+            <li>the <strong>residual stream as output accumulation / communication channel</strong>,</li>
+            <li>the idea that heads work in <strong>smaller subspaces</strong>,</li>
+            <li>why <strong>one-layer heads cannot do conditional multi-step reasoning</strong>,</li>
+            <li>and why induction is exciting from an <strong>emergence and alignment</strong> perspective.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="quote" style="margin-top:16px;">
+        “The lesson is: don’t stop at visualizing patterns. Turn observations into detectors, then into causal tests.”
+        <small>Condensed from the transcript, ARENA notes, and slide exercises on detector functions, logit attribution, and ablation.</small>
+      </div>
+
+      <div id="s2" class="sec-head">
+        <div class="sec-num">02 / mechanism</div>
+        <h2>The core transformer circuit story</h2>
+      </div>
+      <p class="lead">All three sources frame mechanistic interpretability as a shift from components to <em>paths</em>. The useful unit is not “the model” but the specific route information takes through embeddings, attention heads, residual stream, and unembedding.</p>
+
+      <div class="mermaid-wrap">
+        <div class="mermaid-controls">
+          <button data-zoom="in">+</button>
+          <button data-zoom="out">−</button>
+          <button data-zoom="reset">↺</button>
+        </div>
+        <div class="mermaid-panzoom">
+          <div class="mermaid-stage">
+            <pre class="mermaid">
+flowchart TD
+    A["Input tokens"] --> B["Embedding + positional information"]
+    B --> C["Residual stream\nshared communication channel"]
+    C --> D["Attention path\nQK chooses where to look"]
+    D --> E["OV chooses what gets written"]
+    E --> F["Write back into residual stream"]
+    F --> G["Unembedding\nnext-token logits"]
+
+    C -.-> H["Direct path\nembed → unembed"]
+    H -.-> G
+
+    D --> I["Heads act in small subspaces"]
+    F --> J["Components can compose across layers"]
+
+    classDef major fill:#1e3a5f22,stroke:#1e3a5f,stroke-width:1.5px;
+    classDef aux fill:#b5761433,stroke:#b57614,stroke-width:1.5px;
+    class A,B,C,D,E,F,G major;
+    class H,I,J aux;
+            </pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:16px;">
+        <div class="card">
+          <div class="label label--accent">Direct path</div>
+          <p>Embedding straight to unembedding explains why a degenerate or zero-layer picture mostly captures <strong>bigram statistics</strong>. This is the “predict from the current token identity” baseline.</p>
+        </div>
+        <div class="card">
+          <div class="label label--teal">QK circuit</div>
+          <p><strong>Where should this token look?</strong> QK determines preferred source positions. In the notes and slides, this becomes the “which earlier token should I attend to?” part of the algorithm.</p>
+        </div>
+        <div class="card">
+          <div class="label label--rose">OV circuit</div>
+          <p><strong>What consequence should following that source have?</strong> OV decides what gets written back, which is why direct logit attribution can often identify specific heads as major contributors.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Most important conceptual upgrade:</strong> the residual stream is not just “the hidden state.” In this lesson it is explicitly treated as a <strong>shared bus</strong>. Heads read from it, write back into it, and later heads can compose with earlier heads if their subspaces align enough.
+      </div>
+
+      <div id="s3" class="sec-head">
+        <div class="sec-num">03 / circuits</div>
+        <h2>Skip trigrams vs induction heads</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mechanism</th>
+              <th>Layer requirement</th>
+              <th>What it does</th>
+              <th>Why it matters</th>
+              <th>Limitation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Skip trigram circuit</strong></td>
+              <td><span class="badge badge--amber">Often 1 layer</span></td>
+              <td>Uses QK + OV to complete patterns like “keep ... in mind” or other <em>A ... B → C</em> style local motifs.</td>
+              <td>Shows that even simple attention can memorize and deploy structured local patterns.</td>
+              <td>Because components in the same layer act in parallel, they cannot do the sequential conditional logic needed for true induction.</td>
+            </tr>
+            <tr>
+              <td><strong>Previous-token head</strong></td>
+              <td><span class="badge badge--teal">Layer 1 role</span></td>
+              <td>Looks one token back and copies the previous token’s identity into a useful residual-stream subspace.</td>
+              <td>Provides the setup needed for a later head to reason about “what follows this token?”</td>
+              <td>By itself it only transports local information, it does not complete the multi-step copy pattern.</td>
+            </tr>
+            <tr>
+              <td><strong>Induction head</strong></td>
+              <td><span class="badge badge--accent">Needs 2+ layers</span></td>
+              <td>Attends to the token <em>after</em> an earlier occurrence of the current token, enabling sequence copying like <code>[A][B] ... [A] → [B]</code>.</td>
+              <td>This is the lesson’s first concrete example of in-context learning as a circuit, not a vague emergent mystery.</td>
+              <td>Cannot exist in one layer because attention scores at one position cannot directly depend on the value of an adjacent earlier token unless another layer has already written that information forward.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-2" style="margin-top:16px;">
+        <div class="mermaid-wrap">
+          <div class="mermaid-controls">
+            <button data-zoom="in">+</button>
+            <button data-zoom="out">−</button>
+            <button data-zoom="reset">↺</button>
+          </div>
+          <div class="mermaid-panzoom"><div class="mermaid-stage"><pre class="mermaid">
+flowchart TD
+    A1["Earlier token: keep"] --> A2["Later token: in"]
+    A2 --> A3["Predict: mind"]
+    B1["Earlier token: keep"] --> B2["Later token: at"]
+    B2 --> B3["Predict: bay"]
+    A1 -. shared source .-> B3
+    B1 -. shared source .-> A3
+    X["Why bugs happen"] --> Y["QK and OV are separate mechanisms"]
+    Y --> Z["They can mix and match when language motifs overlap"]
+
+    classDef warm fill:#b5761433,stroke:#b57614,stroke-width:1.5px;
+    classDef note fill:#8f3f4622,stroke:#8f3f46,stroke-width:1.5px;
+    class A1,A2,A3,B1,B2,B3 warm;
+    class X,Y,Z note;
+          </pre></div></div>
+        </div>
+        <div class="mermaid-wrap">
+          <div class="mermaid-controls">
+            <button data-zoom="in">+</button>
+            <button data-zoom="out">−</button>
+            <button data-zoom="reset">↺</button>
+          </div>
+          <div class="mermaid-panzoom"><div class="mermaid-stage"><pre class="mermaid">
+flowchart TD
+    P1["Sequence contains\nA B ... A"] --> P2["Layer 0 previous-token head\nasks 'what is on my left?'"]
+    P2 --> P3["Writes previous-token identity\ninto residual stream"]
+    P3 --> P4["Layer 1 induction head\nasks 'who followed this token before?'"]
+    P4 --> P5["Attends to earlier B"]
+    P5 --> P6["Boost logit for B\nat the new A position"]
+
+    classDef cool fill:#1e3a5f22,stroke:#1e3a5f,stroke-width:1.5px;
+    classDef green fill:#5f7f5533,stroke:#5f7f55,stroke-width:1.5px;
+    class P1,P2,P4,P5,P6 cool;
+    class P3 green;
+          </pre></div></div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:16px;">
+        <div class="card">
+          <div class="label label--amber">What the slides stress</div>
+          <p>Induction heads are <strong>cool because they emerge</strong>, produce a visible loss change, and degrade performance when ablated.</p>
+        </div>
+        <div class="card">
+          <div class="label label--rose">What the transcript stresses</div>
+          <p>They matter because they are the first place where you can point to a concrete multi-step mechanism and say, “this is why the model can copy from context.”</p>
+        </div>
+        <div class="card">
+          <div class="label label--sage">What the notes stress</div>
+          <p>You can identify them operationally by running on repeated random sequences and scoring attention on the characteristic offset diagonal.</p>
+        </div>
+      </div>
+
+      <div id="s4" class="sec-head">
+        <div class="sec-num">04 / tooling</div>
+        <h2>TransformerLens as the operational interface</h2>
+      </div>
+      <p class="lead">The notes and slide deck are unusually aligned here. TransformerLens is introduced not as a giant abstraction layer, but as a small set of high-leverage handles that make interpretability work feel experimentally tractable.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="label label--accent">Core objects and methods</div>
+          <ul>
+            <li><code>HookedTransformer.from_pretrained(...)</code> or <code>from_config(...)</code></li>
+            <li><code>model.to_tokens</code>, <code>to_str_tokens</code>, <code>to_string</code></li>
+            <li><code>model.run_with_cache(...)</code> for activations</li>
+            <li><code>model.run_with_hooks(...)</code> for interventions</li>
+            <li>shortcut weight access like <code>model.W_Q</code>, <code>model.W_E</code>, <code>model.W_U</code></li>
+          </ul>
+        </div>
+        <div class="card card--recessed">
+          <div class="label label--teal">Why this matters pedagogically</div>
+          <p>The course repeatedly moves from “see the pattern” to “turn it into a detector” to “test it with ablation.” TransformerLens lowers the cost of every stage in that loop, which is why the notes frame it as making exploratory research feel fast and playful.</p>
+        </div>
+      </div>
+
+      <div class="mermaid-wrap" style="margin-top:16px;">
+        <div class="mermaid-controls">
+          <button data-zoom="in">+</button>
+          <button data-zoom="out">−</button>
+          <button data-zoom="reset">↺</button>
+        </div>
+        <div class="mermaid-panzoom"><div class="mermaid-stage"><pre class="mermaid">
+flowchart LR
+    A["Prompt or token tensor"] --> B["run_with_cache"]
+    B --> C["ActivationCache"]
+    C --> D["Visualize patterns\n(circuitsvis)"]
+    C --> E["Write detectors\ncurrent / prev / first / induction"]
+    E --> F["Score candidate heads"]
+    C --> G["run_with_hooks"]
+    G --> H["Zero ablation / mean ablation"]
+    H --> I["Measure loss or logit changes"]
+    F --> J["Candidate circuit"]
+    I --> J
+
+    classDef a fill:#0f766e22,stroke:#0f766e,stroke-width:1.5px;
+    classDef b fill:#1e3a5f22,stroke:#1e3a5f,stroke-width:1.5px;
+    classDef c fill:#b5761433,stroke:#b57614,stroke-width:1.5px;
+    class A,B,C b;
+    class D,E,F,G,H,I a;
+    class J c;
+        </pre></div></div>
+      </div>
+
+      <div class="callout">
+        <strong>Hidden curriculum of the module:</strong> “mechanistic interpretation” is not one magic visualization. It is a workflow: cache → inspect → hypothesize → score → intervene → verify.
+      </div>
+
+      <div id="s5" class="sec-head">
+        <div class="sec-num">05 / triangulation</div>
+        <h2>How the three sources line up</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>What it contributes best</th>
+              <th>Examples recovered during review</th>
+              <th>How to use it while studying</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>YouTube transcript</strong></td>
+              <td>Verbal intuition and causal narrative.</td>
+              <td>Residual stream as communication channel, heads in small subspaces, why induction needs two layers, why emergence matters for alignment.</td>
+              <td>Use it first when the slides feel compressed or the tensor algebra loses the mechanism.</td>
+            </tr>
+            <tr>
+              <td><strong><code>interp.txt</code></strong></td>
+              <td>Precise lab framing and executable exercises.</td>
+              <td>Detector functions, repeated-token tests, induction attention offset diagonal, hook-based ablations, logit attribution workflow.</td>
+              <td>Use it as the canonical implementation guide and source of truth for names, APIs, and exercises.</td>
+            </tr>
+            <tr>
+              <td><strong>PPTX slide deck</strong></td>
+              <td>Compressed conceptual overview and classroom task framing.</td>
+              <td>Virtual weights, QK vs OV split, one-layer vs two-layer path expansion, task prompts on finding previous-token and induction heads, practical TL hook examples.</td>
+              <td>Use it as a map of the module before diving into the full notes.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-3" style="margin-top:16px;">
+        <div class="card">
+          <div class="label label--sage">Strong convergence</div>
+          <p>There were no serious contradictions. The three materials mostly differ in granularity, not worldview.</p>
+        </div>
+        <div class="card">
+          <div class="label label--amber">Main compression in slides</div>
+          <p>The deck is good for orientation, but it often omits the “why this algorithm actually works” narrative that the transcript supplies.</p>
+        </div>
+        <div class="card">
+          <div class="label label--rose">Main gap in transcript</div>
+          <p>The transcript is conceptually rich, but the notebook is where operational details like exact cache keys and detector implementations live.</p>
+        </div>
+      </div>
+
+      <div id="s6" class="sec-head">
+        <div class="sec-num">06 / action</div>
+        <h2>Practical study guide, what to internalize from Week 4</h2>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="label label--accent">If you only retain five things</div>
+          <ol style="padding-left: 20px; margin: 0;">
+            <li>Embedding → unembedding already gives a baseline bigram-style predictor.</li>
+            <li>Attention can be usefully split into <code>QK</code> for selection and <code>OV</code> for effect.</li>
+            <li>One-layer attention can implement structured local motifs like skip trigrams, but not true induction.</li>
+            <li>Induction heads are a two-layer circuit built from previous-token transport plus composition in a later head.</li>
+            <li>TransformerLens is valuable because it lets you test claims causally, not just admire patterns.</li>
+          </ol>
+        </div>
+        <div class="card card--recessed">
+          <div class="label label--teal">Suggested working order</div>
+          <ol style="padding-left: 20px; margin: 0;">
+            <li>Read slide sections on virtual weights, skip trigrams, and induction.</li>
+            <li>Use the transcript to lock in the intuition for why two layers are required.</li>
+            <li>Work the notebook exercises directly, especially detector functions and repeated-sequence tests.</li>
+            <li>Only after that, move into hooks, ablation, and logit attribution.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="label label--rose">Best one-sentence summary</div>
+        <p><strong>Week 4 teaches you to stop treating in-context learning as magic and start treating it as a circuit you can localize, visualize, score, and break.</strong></p>
+      </div>
+
+      <div class="footer-note">
+        Output generated as a self-contained HTML explainer for browser viewing. Source review covered the extracted transcript, the local ARENA notes in <code>interp.txt</code>, and the locally extracted 63-slide PPTX text.
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      look: 'classic',
+      flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+      themeVariables: {
+        primaryColor: isDark ? '#1f3550' : '#dbe8f7',
+        primaryBorderColor: isDark ? '#9fc0e8' : '#1e3a5f',
+        primaryTextColor: isDark ? '#efe6dc' : '#2c241d',
+        secondaryColor: isDark ? '#263225' : '#e6f0e1',
+        secondaryBorderColor: isDark ? '#a4c39a' : '#5f7f55',
+        secondaryTextColor: isDark ? '#efe6dc' : '#2c241d',
+        tertiaryColor: isDark ? '#3a2d1e' : '#f4e5c8',
+        tertiaryBorderColor: isDark ? '#e4b55c' : '#b57614',
+        tertiaryTextColor: isDark ? '#efe6dc' : '#2c241d',
+        lineColor: isDark ? '#8f857a' : '#7a6c5d',
+        fontSize: '18px',
+        fontFamily: 'IBM Plex Sans',
+        noteBkgColor: isDark ? '#312922' : '#fff8f0',
+        noteBorderColor: isDark ? '#dfa1aa' : '#8f3f46',
+        noteTextColor: isDark ? '#efe6dc' : '#2c241d'
+      }
+    });
+  </script>
+
+  <script>
+    (function() {
+      const toc = document.getElementById('toc');
+      const links = toc.querySelectorAll('a');
+      const sections = [];
+      links.forEach(link => {
+        const id = link.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) sections.push({ id, el, link });
+      });
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            const match = sections.find(s => s.el === entry.target);
+            if (match) {
+              match.link.classList.add('active');
+              if (window.innerWidth <= 1100) {
+                match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+              }
+            }
+          }
+        });
+      }, { rootMargin: '-10% 0px -80% 0px' });
+      sections.forEach(s => observer.observe(s.el));
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const id = link.getAttribute('href').slice(1);
+          const el = document.getElementById(id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', '#' + id);
+          }
+        });
+      });
+    })();
+
+    (function() {
+      const wraps = document.querySelectorAll('.mermaid-wrap');
+      wraps.forEach(wrap => {
+        const stage = wrap.querySelector('.mermaid-stage');
+        const buttons = wrap.querySelectorAll('button[data-zoom]');
+        let scale = 1;
+        const apply = () => { stage.style.transform = `scale(${scale})`; };
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const action = btn.getAttribute('data-zoom');
+            if (action === 'in') scale = Math.min(2.2, scale + 0.15);
+            if (action === 'out') scale = Math.max(0.7, scale - 0.15);
+            if (action === 'reset') scale = 1;
+            apply();
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

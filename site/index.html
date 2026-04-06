@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clawd Study Explainers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --bg: #f7f4ef;
+      --surface: #fffdfa;
+      --surface2: #f2ece4;
+      --text: #2c241d;
+      --text-dim: #75685d;
+      --border: rgba(53, 42, 33, 0.10);
+      --accent: #1e3a5f;
+      --accent-dim: rgba(30,58,95,0.08);
+      --sage: #5f7f55;
+      --sage-dim: rgba(95,127,85,0.10);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161311;
+        --surface: #1f1a17;
+        --surface2: #28221d;
+        --text: #efe6dc;
+        --text-dim: #b4a596;
+        --border: rgba(255,255,255,0.08);
+        --accent: #9fc0e8;
+        --accent-dim: rgba(159,192,232,0.10);
+        --sage: #a4c39a;
+        --sage-dim: rgba(164,195,154,0.10);
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      background-image:
+        radial-gradient(circle at 10% 0%, var(--accent-dim) 0%, transparent 35%),
+        radial-gradient(circle at 90% 20%, var(--sage-dim) 0%, transparent 30%);
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .hero {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, var(--accent-dim)), color-mix(in srgb, var(--surface) 90%, var(--sage-dim)));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 34px;
+      margin-bottom: 24px;
+    }
+    .eyebrow {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(38px, 6vw, 68px);
+      line-height: 0.95;
+      letter-spacing: -1.8px;
+    }
+    h1 .serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+    .subtitle { color: var(--text-dim); max-width: 900px; font-size: 18px; }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+    }
+    .label {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 24px; letter-spacing: -0.6px; }
+    .card p { margin: 0 0 14px; color: var(--text-dim); }
+    .cta {
+      display: inline-block;
+      text-decoration: none;
+      background: var(--accent);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    @media (prefers-color-scheme: dark) {
+      .cta { color: #121212; }
+    }
+    .muted {
+      margin-top: 16px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Public study hub</div>
+      <h1>Clawd <span class="serif">Study Explainers</span></h1>
+      <p class="subtitle">A small GitHub Pages collection for browser-friendly study explainers, diagrams, and synthesis notes. Built to be easy to share in Slack and easy to extend with future course artifacts.</p>
+    </section>
+
+    <div class="card-grid">
+      <article class="card">
+        <div class="label">ARENA · Week 4</div>
+        <h2>Intro to Mechanistic Interpretability</h2>
+        <p>A visual explainer built from the lecture transcript, ARENA lab notes, and the Week 4 slide deck, focused on QK/OV circuits, skip trigrams, induction heads, TransformerLens, hooks, and ablation.</p>
+        <a class="cta" href="./mech-interp-week4/">Open explainer</a>
+      </article>
+    </div>
+
+    <p class="muted">Future explainers can be added as new folders under <code>site/</code> and linked from this index page.</p>
+  </div>
+</body>
+</html>
