@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARENA Week 4, TransformerLens and Induction Circuits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+
+      --bg: #f4efe8;
+      --surface: rgba(255, 252, 248, 0.9);
+      --surface-elevated: rgba(255, 255, 255, 0.96);
+      --surface-soft: rgba(245, 238, 229, 0.92);
+      --border: rgba(30, 58, 95, 0.13);
+      --border-strong: rgba(30, 58, 95, 0.23);
+      --text: #1d2630;
+      --text-dim: #5f6973;
+      --blue: #1e3a5f;
+      --blue-dim: rgba(30, 58, 95, 0.11);
+      --gold: #c28a22;
+      --gold-dim: rgba(194, 138, 34, 0.13);
+      --teal: #14726b;
+      --teal-dim: rgba(20, 114, 107, 0.12);
+      --sage: #5c7c41;
+      --sage-dim: rgba(92, 124, 65, 0.12);
+      --rose: #8a4a64;
+      --rose-dim: rgba(138, 74, 100, 0.12);
+      --amber: #925c11;
+      --amber-dim: rgba(146, 92, 17, 0.12);
+      --danger: #9a3e30;
+      --danger-dim: rgba(154, 62, 48, 0.12);
+      --shadow: 0 24px 60px rgba(30, 32, 38, 0.09);
+      --grid: rgba(30, 58, 95, 0.05);
+      --toc-w: 168px;
+      --accent: var(--gold);
+      --diagram-card-bg: #f8f2ea;
+      --diagram-card-border: #6f7f92;
+      --diagram-card-text: #1a2430;
+      --diagram-blue-fill: #d9e7f4;
+      --diagram-blue-border: #3e648d;
+      --diagram-teal-fill: #d8f0ed;
+      --diagram-teal-border: #2e7c76;
+      --diagram-gold-fill: #f4e5c7;
+      --diagram-gold-border: #9a6d21;
+      --heat-cell: rgba(30, 58, 95, 0.08);
+      --heat-cell-border: rgba(30, 58, 95, 0.12);
+      --heat-blue: #537cab;
+      --heat-gold: #bf8d2d;
+      --heat-teal: #2f8e86;
+      --heat-rose: #9c5b78;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #10171e;
+        --surface: rgba(22, 29, 37, 0.9);
+        --surface-elevated: rgba(27, 36, 46, 0.96);
+        --surface-soft: rgba(31, 41, 53, 0.9);
+        --border: rgba(236, 241, 245, 0.08);
+        --border-strong: rgba(236, 241, 245, 0.16);
+        --text: #e8edf1;
+        --text-dim: #9aa7b3;
+        --blue: #8bb8e0;
+        --blue-dim: rgba(139, 184, 224, 0.14);
+        --gold: #e0b86c;
+        --gold-dim: rgba(224, 184, 108, 0.14);
+        --teal: #78cdc6;
+        --teal-dim: rgba(120, 205, 198, 0.14);
+        --sage: #b5cf8f;
+        --sage-dim: rgba(181, 207, 143, 0.14);
+        --rose: #d79cb6;
+        --rose-dim: rgba(215, 156, 182, 0.14);
+        --amber: #efbc77;
+        --amber-dim: rgba(239, 188, 119, 0.14);
+        --danger: #ffab96;
+        --danger-dim: rgba(255, 171, 150, 0.14);
+        --shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
+        --grid: rgba(154, 169, 184, 0.06);
+        --diagram-card-bg: #202b36;
+        --diagram-card-border: #8fa2b7;
+        --diagram-card-text: #f4f7fa;
+        --diagram-blue-fill: #2d435b;
+        --diagram-blue-border: #a6c5e5;
+        --diagram-teal-fill: #244842;
+        --diagram-teal-border: #93ded6;
+        --diagram-gold-fill: #5a4728;
+        --diagram-gold-border: #f1ce8a;
+        --heat-cell: rgba(255, 255, 255, 0.07);
+        --heat-cell-border: rgba(255, 255, 255, 0.1);
+        --heat-blue: #8eb9e5;
+        --heat-gold: #f0c36b;
+        --heat-teal: #7ed5cd;
+        --heat-rose: #e0a6c0;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        radial-gradient(circle at 12% 0%, var(--blue-dim), transparent 28%),
+        radial-gradient(circle at 88% 10%, var(--gold-dim), transparent 22%),
+        linear-gradient(var(--bg), var(--bg));
+      background-size: 30px 30px, 30px 30px, auto, auto, auto;
+      line-height: 1.58;
+      padding: 30px 34px 80px;
+      overflow-wrap: break-word;
+    }
+
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: var(--toc-w) minmax(0, 1fr);
+      gap: 34px;
+      align-items: start;
+    }
+
+    .main, .hero-grid > *, .grid-2 > *, .grid-3 > *, .stack > *, .board-grid > *, .study-grid > *, .tool-grid > *, .evidence-grid > *, .table-wrap, .ve-card, .mermaid-wrap, .pattern-board, .mechanism-strip, .check-grid > * { min-width: 0; }
+
+    .toc {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      max-height: calc(100dvh - 40px);
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+    .toc::-webkit-scrollbar { width: 4px; }
+    .toc::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
+    .toc-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      color: var(--text-dim);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc a {
+      display: block;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 11px;
+      line-height: 1.35;
+      padding: 6px 8px;
+      border-left: 2px solid transparent;
+      border-radius: 6px;
+      margin-bottom: 2px;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .toc a:hover, .toc a.active {
+      color: var(--text);
+      background: var(--surface);
+      border-left-color: var(--accent);
+    }
+
+    .hero, .ve-card, .table-wrap, details.collapsible, .pattern-board, .mechanism-strip, .mermaid-shell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      padding: 32px;
+      box-shadow: var(--shadow);
+      border-color: var(--border-strong);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--surface-elevated) 87%, var(--blue) 13%), var(--surface));
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: auto -6% -36% 48%;
+      height: 72%;
+      background: radial-gradient(circle, var(--gold-dim), transparent 68%);
+      pointer-events: none;
+    }
+
+    h1, h2, h3 { margin: 0; line-height: 0.98; letter-spacing: -0.04em; }
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3.1rem, 5.6vw, 5.15rem);
+      max-width: 10.5ch;
+      margin-top: 8px;
+    }
+    h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3vw, 3rem);
+      margin-top: 4px;
+    }
+    h3 { font-size: 1.02rem; letter-spacing: -0.02em; }
+    p { margin: 0; }
+
+    .eyebrow, .section-label, .tiny-label {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+    .subtitle, .muted, .mini-copy, .footnote, .section-kicker { color: var(--text-dim); }
+    .subtitle {
+      max-width: 68ch;
+      font-size: 1.03rem;
+      margin: 16px 0 22px;
+    }
+
+    .hero-grid, .grid-2, .grid-3, .stack, .board-grid, .study-grid, .tool-grid, .evidence-grid, .check-grid, .reverse-step-grid {
+      display: grid;
+      gap: 16px;
+    }
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .grid-2, .study-grid, .evidence-grid, .check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3, .tool-grid, .reverse-step-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .board-grid { grid-template-columns: 1.12fr 0.88fr; }
+    .section { margin-top: 42px; }
+    .sec-head { scroll-margin-top: 74px; margin-bottom: 8px; }
+
+    .ve-card { padding: 18px 20px; }
+    .ve-card--hero {
+      background: color-mix(in srgb, var(--surface-elevated) 88%, var(--blue) 12%);
+      border-color: color-mix(in srgb, var(--border) 48%, var(--blue) 52%);
+      box-shadow: 0 10px 24px rgba(24, 31, 39, 0.06);
+    }
+    .ve-card--recessed { background: color-mix(in srgb, var(--surface-soft) 78%, transparent); }
+    .ve-card--blue { border-top: 3px solid var(--blue); }
+    .ve-card--gold { border-top: 3px solid var(--gold); }
+    .ve-card--teal { border-top: 3px solid var(--teal); }
+    .ve-card--sage { border-top: 3px solid var(--sage); }
+    .ve-card--rose { border-top: 3px solid var(--rose); }
+    .ve-card--amber { border-top: 3px solid var(--amber); }
+    .ve-card--danger { border-top: 3px solid var(--danger); }
+
+    .chip-row, .pill-row, .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .chip, .pill, .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .chip { background: var(--blue-dim); color: var(--blue); }
+    .pill--gold { background: var(--gold-dim); color: var(--gold); }
+    .pill--teal { background: var(--teal-dim); color: var(--teal); }
+    .pill--sage { background: var(--sage-dim); color: var(--sage); }
+    .pill--rose { background: var(--rose-dim); color: var(--rose); }
+    .pill--amber { background: var(--amber-dim); color: var(--amber); }
+    .pill--danger { background: var(--danger-dim); color: var(--danger); }
+
+    .bullet-list, .outcome-list, .callout-list {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+    .bullet-list li, .outcome-list li, .callout-list li { margin-bottom: 8px; }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--surface-elevated) 86%, transparent);
+    }
+    .metric strong {
+      display: block;
+      font-size: 1.35rem;
+      margin-bottom: 4px;
+      letter-spacing: -0.03em;
+    }
+
+    .path-board {
+      display: grid;
+      grid-template-columns: 0.82fr 0.18fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 6px;
+    }
+    .path-card, .path-arrow {
+      border: 1px solid var(--diagram-card-border);
+      border-radius: 18px;
+      padding: 16px;
+      background: var(--diagram-card-bg);
+      color: var(--diagram-card-text);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    }
+    .path-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .workspace-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .workspace-cell {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+    }
+    .workspace-cell strong { display: block; margin-bottom: 6px; }
+
+    .pattern-board {
+      padding: 18px;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 92%, transparent), color-mix(in srgb, var(--surface-soft) 70%, transparent));
+    }
+    .pattern-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .pattern-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .artifact-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .artifact-chip::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.55;
+    }
+    .artifact-chip.blue { color: var(--blue); }
+    .artifact-chip.gold { color: var(--gold); }
+    .artifact-chip.teal { color: var(--teal); }
+    .pattern-frame {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: color-mix(in srgb, var(--surface-elevated) 90%, transparent);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      gap: 5px;
+      margin-top: 8px;
+    }
+    .pattern-caption {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .pattern-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--blue-dim) 35%, transparent);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .cell {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      background: var(--heat-cell);
+      border: 1px solid var(--heat-cell-border);
+    }
+    .cell.hot-blue { background: var(--heat-blue); border-color: color-mix(in srgb, var(--heat-blue) 80%, white 20%); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); }
+    .cell.hot-gold { background: var(--heat-gold); border-color: color-mix(in srgb, var(--heat-gold) 80%, white 20%); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); }
+    .cell.hot-teal { background: var(--heat-teal); border-color: color-mix(in srgb, var(--heat-teal) 80%, white 20%); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); }
+    .cell.hot-rose { background: var(--heat-rose); border-color: color-mix(in srgb, var(--heat-rose) 80%, white 20%); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); }
+    .axis-row {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      gap: 5px;
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .token-tape {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .token {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+      font-family: var(--font-mono);
+      background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+    }
+    .token small {
+      display: block;
+      color: var(--text-dim);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .token.highlight {
+      background: color-mix(in srgb, var(--gold-dim) 60%, var(--surface-elevated));
+      border-color: color-mix(in srgb, var(--gold) 24%, var(--border));
+    }
+
+    .mechanism-strip {
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+    }
+    .mechanism-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .mechanism-card {
+      border: 1px solid var(--diagram-card-border);
+      border-radius: 18px;
+      padding: 14px;
+      background: var(--diagram-card-bg);
+      color: var(--diagram-card-text);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    }
+    .mechanism-card strong { display: block; margin-bottom: 6px; }
+
+    .source-lane {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .source-node {
+      border: 1px solid var(--diagram-card-border);
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+      background: var(--diagram-card-bg);
+      color: var(--diagram-card-text);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    }
+    .source-node span { display: block; }
+    .source-node .top { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+    .source-node .main { font-family: var(--font-mono); font-size: 14px; margin-top: 6px; }
+    .source-node.route { background: var(--diagram-teal-fill); border-color: var(--diagram-teal-border); }
+    .source-node.match { background: var(--diagram-blue-fill); border-color: var(--diagram-blue-border); }
+    .source-node.copy { background: var(--diagram-gold-fill); border-color: var(--diagram-gold-border); }
+
+    .reverse-board {
+      display: grid;
+      gap: 18px;
+      padding: 20px;
+    }
+    .reverse-intro {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 16px;
+    }
+    .reverse-step {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+    }
+    .reverse-step .tiny-label { margin-bottom: 8px; display: block; }
+    .reverse-summary {
+      display: grid;
+      gap: 10px;
+    }
+    .reverse-summary .summary-row {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--surface-soft) 74%, transparent);
+      border: 1px solid var(--border);
+    }
+    .summary-row strong {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+    }
+    .table-wrap { overflow: hidden; }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    thead { position: sticky; top: 0; z-index: 2; }
+    th {
+      text-align: left;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      background: var(--surface-soft);
+      border-bottom: 2px solid var(--border-strong);
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: color-mix(in srgb, var(--blue-dim) 35%, transparent); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      background: color-mix(in srgb, var(--blue-dim) 50%, transparent);
+      color: var(--blue);
+      padding: 1px 5px;
+      border-radius: 6px;
+    }
+
+    .mermaid-shell { padding: 12px; }
+    .mermaid-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface-elevated) 90%, transparent);
+      min-height: 220px;
+    }
+    .mermaid-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+      z-index: 3;
+    }
+    .mermaid-controls button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      width: 32px;
+      height: 32px;
+      font-family: var(--font-mono);
+      cursor: pointer;
+    }
+    .mermaid-panzoom {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 220px;
+      padding: 28px;
+      transform-origin: center center;
+      transition: transform 0.16s ease;
+      cursor: default;
+    }
+    .mermaid-panzoom.drag-ready { cursor: grab; }
+    .mermaid-panzoom.dragging { cursor: grabbing; }
+    .mermaid { width: 100%; }
+    .mermaid svg { max-width: 100%; height: auto; }
+    .mermaid .node rect, .mermaid .node polygon, .mermaid .node path {
+      stroke-width: 2px !important;
+      rx: 12px !important;
+      ry: 12px !important;
+      filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.14));
+    }
+    .mermaid .label,
+    .mermaid .label text,
+    .mermaid .nodeLabel,
+    .mermaid span {
+      font-family: var(--font-body) !important;
+      color: var(--diagram-card-text) !important;
+      fill: var(--diagram-card-text) !important;
+      font-weight: 600 !important;
+    }
+
+    details.collapsible {
+      padding: 16px 18px;
+      margin-top: 16px;
+    }
+    details.collapsible summary {
+      list-style: none;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    details.collapsible summary::-webkit-details-marker { display: none; }
+    details.collapsible summary::after {
+      content: '+';
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+    details.collapsible[open] summary::after { content: '−'; }
+    .appendix-content { margin-top: 14px; }
+
+    .check-grid .ve-card { height: 100%; }
+
+    .footer-note {
+      margin-top: 28px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeUp 0.55s ease forwards;
+    }
+    .fade-up:nth-child(2) { animation-delay: 0.05s; }
+    .fade-up:nth-child(3) { animation-delay: 0.1s; }
+    .fade-up:nth-child(4) { animation-delay: 0.15s; }
+    .fade-up:nth-child(5) { animation-delay: 0.2s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .fade-up { animation: none; opacity: 1; transform: none; }
+      .mermaid-panzoom { transition: none; }
+    }
+
+    @media (max-width: 1100px) {
+      .wrap { grid-template-columns: 1fr; }
+      body { padding-top: 0; }
+      .toc {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        max-height: none;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+        margin: 0 -34px;
+        padding-left: 34px;
+        padding-right: 34px;
+      }
+      .toc::-webkit-scrollbar { display: none; }
+      .toc-title { display: none; }
+      .toc a {
+        white-space: nowrap;
+        flex-shrink: 0;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 4px 4px 0 0;
+        padding: 6px 10px;
+        font-size: 10px;
+      }
+      .toc a.active {
+        border-left: none;
+        border-bottom-color: var(--accent);
+        background: var(--surface);
+      }
+      .hero-grid, .board-grid, .grid-2, .grid-3, .study-grid, .tool-grid, .evidence-grid, .check-grid, .workspace-strip, .mechanism-grid, .path-board, .metric-strip, .reverse-step-grid, .reverse-intro { grid-template-columns: 1fr; }
+      .path-arrow { min-height: 56px; }
+      .token-tape, .source-lane { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .pattern-grid, .axis-row { gap: 4px; }
+      .sec-head { scroll-margin-top: 56px; }
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 0 18px 64px; }
+      .toc { margin: 0 -18px; padding-left: 18px; padding-right: 18px; }
+      .hero { padding: 24px; border-radius: 20px; }
+      .ve-card, .table-wrap, .pattern-board, .mechanism-strip, details.collapsible { border-radius: 20px; }
+      h1 { font-size: clamp(2.5rem, 10vw, 4rem); }
+      .token-tape, .source-lane { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc" id="toc">
+      <div class="toc-title">Week 4 Arc</div>
+      <a href="#s1">1. Why TransformerLens matters</a>
+      <a href="#s2">2. Direct vs attention path</a>
+      <a href="#s3">3. Residual stream</a>
+      <a href="#s4">4. Skip-trigrams</a>
+      <a href="#s5">5. Repeated random sequence</a>
+      <a href="#s6">6. Attention patterns</a>
+      <a href="#s7">7. Hooks, cache, attribution</a>
+      <a href="#s8">8. Core induction circuit</a>
+      <a href="#s9">9. Reverse engineering</a>
+      <a href="#s10">10. Mastery check</a>
+    </nav>
+
+    <main class="main">
+      <section class="hero fade-up">
+        <div class="eyebrow">ARENA week 4 • slide-grounded rebuild</div>
+        <h1>See the circuit, then prove it.</h1>
+        <p class="subtitle">Week 4 teaches two things at once. First, induction heads implement a real algorithm. Second, TransformerLens gives you direct access to the activations, weights, hooks, and attention patterns you need to inspect that algorithm instead of guessing from outputs.</p>
+        <div class="hero-grid">
+          <div class="stack">
+            <div class="chip-row">
+              <span class="chip">TransformerLens → inspect internals</span>
+              <span class="pill pill--teal">patterns → clues</span>
+              <span class="pill pill--gold">attribution → contribution</span>
+              <span class="pill pill--rose">weights → mechanism</span>
+            </div>
+            <div class="ve-card ve-card--hero ve-card--blue">
+              <div class="section-label">Why this week matters</div>
+              <p>Mechanistic interpretability gets stronger when you can move up the evidence ladder. TransformerLens makes that practical. You can cache activations, hook into the forward pass, inspect the attention heads, and multiply through weights to test a concrete story about how the model solved the task.</p>
+            </div>
+            <div class="metric-strip">
+              <div class="metric">
+                <strong>Activations</strong>
+                <span class="muted">Read what each component wrote.</span>
+              </div>
+              <div class="metric">
+                <strong>Hooks</strong>
+                <span class="muted">Observe or intervene mid-pass.</span>
+              </div>
+              <div class="metric">
+                <strong>Weights</strong>
+                <span class="muted">Reverse engineer the path itself.</span>
+              </div>
+            </div>
+          </div>
+          <div class="ve-card ve-card--gold">
+            <div class="section-label">You should leave able to</div>
+            <ul class="outcome-list">
+              <li>Explain the direct path and the attention path in one sentence each.</li>
+              <li>Use the residual stream as the right mental model for shared accumulation.</li>
+              <li>Use skip-trigrams to say what Q, K, and V each do.</li>
+              <li>Read previous-token and induction-stripe attention signatures.</li>
+              <li>Use <code>run_with_cache</code>, hooks, and direct logit attribution as a first investigation loop.</li>
+              <li>Separate activation-level evidence from weight-level reverse engineering.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s1" class="sec-head">
+          <div class="section-label">01 • why TransformerLens matters</div>
+          <h2>It turns the model from a black box into an inspectable system.</h2>
+          <p class="section-kicker">You get access to the parts that matter for mech interp: activations, weights, hooks, and attention patterns.</p>
+        </div>
+        <div class="grid-2">
+          <div class="ve-card ve-card--blue">
+            <h3>Concrete access</h3>
+            <ul class="bullet-list">
+              <li><strong>Activations:</strong> what each head or MLP wrote into the residual stream.</li>
+              <li><strong>Weights:</strong> the matrices that decide what gets matched and copied.</li>
+              <li><strong>Hooks:</strong> named points in the forward pass where you can read or edit values.</li>
+              <li><strong>Patterns:</strong> attention maps that expose where a head looked.</li>
+            </ul>
+          </div>
+          <div class="ve-card ve-card--teal">
+            <h3>Why that matters</h3>
+            <p>Mechanistic interpretability is about explaining the algorithm the model learned. Outputs alone give you behavior. Internal access lets you test a story, localize the responsible components, and check whether the weights support the same story.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s2" class="sec-head">
+          <div class="section-label">02 • direct path vs attention path</div>
+          <h2>Bigram behavior can ride the direct path. Richer algorithms need heads.</h2>
+          <p class="section-kicker">This split sets up path decomposition, attribution, and the induction story.</p>
+        </div>
+        <div class="ve-card ve-card--hero ve-card--blue">
+          <div class="path-board">
+            <div class="path-card">
+              <div class="tiny-label">Direct path</div>
+              <h3>Embedding → residual stream → unembedding</h3>
+              <p>The current token already writes features into the residual stream. The unembedding can read those features directly. That supports easy local heuristics like “after <code>New</code>, boost <code>York</code>”.</p>
+            </div>
+            <div class="path-arrow">simpler<br>signal</div>
+            <div class="path-card">
+              <div class="tiny-label">Attention path</div>
+              <h3>Source token → head output → later prediction</h3>
+              <p>Heads create extra paths through the model. They can fetch information from earlier positions, transform it, and write new intermediate features. That is where algorithmic behavior starts to show up.</p>
+            </div>
+          </div>
+        </div>
+        <div class="mermaid-shell">
+          <div class="mermaid-wrap" data-zoom="1">
+            <div class="mermaid-controls">
+              <button type="button" data-zoom-in>+</button>
+              <button type="button" data-zoom-out>−</button>
+              <button type="button" data-zoom-reset>↺</button>
+            </div>
+            <div class="mermaid-panzoom">
+              <div class="mermaid">
+flowchart TD
+  A[Current token embedding] --> B[Residual stream]
+  B --> C[Unembedding logits]
+  D[Earlier token states] --> E[Attention head]
+  E --> B
+  E --> F[New intermediate feature]
+  F --> C
+  classDef base fill:#d9e7f4,stroke:#3e648d,color:#1a2430,stroke-width:2px;
+  classDef accent fill:#f4e5c7,stroke:#9a6d21,color:#1a2430,stroke-width:2px;
+  class A,B,C base;
+  class D,E,F accent;
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s3" class="sec-head">
+          <div class="section-label">03 • residual stream as shared workspace</div>
+          <h2>Everything reads from the same stream, and everything writes back to it.</h2>
+          <p class="section-kicker">Think output accumulation, not mystery latent space.</p>
+        </div>
+        <div class="board-grid">
+          <div class="ve-card ve-card--teal">
+            <h3>Shared accumulation</h3>
+            <p>The residual stream is the model’s common workspace. Each component reads the current state, computes something, and adds its own update. That means one head can write an intermediate feature for a later head to read.</p>
+            <div class="workspace-strip">
+              <div class="workspace-cell"><strong>Token embedding</strong><span class="muted">Seeds local information.</span></div>
+              <div class="workspace-cell"><strong>Head write</strong><span class="muted">Adds a transported feature.</span></div>
+              <div class="workspace-cell"><strong>MLP write</strong><span class="muted">Adds a transformed feature.</span></div>
+              <div class="workspace-cell"><strong>Unembedding read</strong><span class="muted">Turns the sum into logits.</span></div>
+            </div>
+          </div>
+          <div class="ve-card ve-card--sage">
+            <h3>Subspace intuition</h3>
+            <ul class="bullet-list">
+              <li>Two components can communicate if they write and read compatible directions in the stream.</li>
+              <li>Different features can coexist because they live in partially different subspaces.</li>
+              <li>This is why induction can be a multi-step story instead of one head doing everything at once.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s4" class="sec-head">
+          <div class="section-label">04 • skip-trigrams unlock Q / K / V</div>
+          <h2>The toy problem makes attention legible.</h2>
+          <p class="section-kicker">Use a concrete trigram, then use the failure case to see the limits.</p>
+        </div>
+        <div class="grid-2">
+          <div class="ve-card ve-card--gold">
+            <h3>Canonical example</h3>
+            <p>If the prompt is <code>... yesterday I left work and I went to the park. Then I went</code>, the model wants a token that fits what followed the earlier <code>went</code>. Q asks for “the token after the earlier matching context”, K marks which earlier position matches, and V carries the thing to copy.</p>
+            <div class="token-tape">
+              <div class="token"><small>t-7</small>yesterday</div>
+              <div class="token"><small>t-6</small>I</div>
+              <div class="token highlight"><small>t-5</small>went</div>
+              <div class="token"><small>t-4</small>to</div>
+              <div class="token"><small>t-3</small>the</div>
+              <div class="token"><small>t-2</small>park</div>
+              <div class="token"><small>t-1</small>then</div>
+              <div class="token highlight"><small>t</small>went</div>
+            </div>
+          </div>
+          <div class="ve-card ve-card--danger">
+            <h3>Bug case</h3>
+            <p>The classic mixup is something like <code>keep ... in mind</code> versus <code>keep ... at bay</code>. Same-layer components cannot condition sequentially on one another, so QK can point to one source while OV carries the wrong payload. That bug is the whole point of separating source selection from copied content.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Part</th>
+                  <th>Question it answers</th>
+                  <th>Role in the trigram</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>QK</strong></td>
+                  <td>Which earlier position matches the current need?</td>
+                  <td>Source selection. It chooses where to look.</td>
+                </tr>
+                <tr>
+                  <td><strong>OV</strong></td>
+                  <td>What feature or token-like information should move forward?</td>
+                  <td>Payload transfer. It carries the thing worth copying.</td>
+                </tr>
+                <tr>
+                  <td><strong>Same-layer limit</strong></td>
+                  <td>Can one head wait for another head from the same layer to finish?</td>
+                  <td>No. They read the same input stream in parallel, so multi-step conditioning needs depth.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s5" class="sec-head">
+          <div class="section-label">05 • repeated random sequence as the induction testbed</div>
+          <h2>Use a setup where memorized co-occurrence can’t do the job.</h2>
+          <p class="section-kicker">The repeated half gives induction a clean target, and the first half stays near random.</p>
+        </div>
+        <div class="board-grid">
+          <div class="ve-card ve-card--hero ve-card--gold">
+            <div class="tiny-label">Board</div>
+            <h3><code>A B C D ... A ? → B</code></h3>
+            <p>Feed the model a random sequence, then repeat it. On the repeated half, when it sees <code>A</code> again, the useful move is to look back to the earlier <code>A</code> and copy the token that followed it, here <code>B</code>.</p>
+            <div class="token-tape">
+              <div class="token"><small>1</small>A</div>
+              <div class="token"><small>2</small>B</div>
+              <div class="token"><small>3</small>C</div>
+              <div class="token"><small>4</small>D</div>
+              <div class="token"><small>5</small>A</div>
+              <div class="token highlight"><small>6</small>?</div>
+              <div class="token"><small>7</small>B</div>
+              <div class="token"><small>8</small>...</div>
+            </div>
+          </div>
+          <div class="ve-card ve-card--blue">
+            <h3>Why this works</h3>
+            <ul class="bullet-list">
+              <li>The random first half gives almost no stable bigram statistics to lean on.</li>
+              <li>The repeated half creates a new in-context structure the model can exploit.</li>
+              <li>Loss should drop sharply on the repeated half once induction turns on.</li>
+              <li>The first half remains near random, which makes the contrast easy to read.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s6" class="sec-head">
+          <div class="section-label">06 • attention-pattern signatures</div>
+          <h2>Patterns teach you where to look before you start intervening.</h2>
+          <p class="section-kicker">Pattern reading gives clue-level evidence. It points. It doesn’t prove.</p>
+        </div>
+        <div class="study-grid">
+          <div class="pattern-board">
+            <div class="pattern-head">
+              <div>
+                <div class="tiny-label">Previous-token head</div>
+                <h3>One-off diagonal</h3>
+              </div>
+              <div class="pattern-meta">
+                <span class="artifact-chip rose">dest → source</span>
+                <span class="artifact-chip blue">offset = -1</span>
+              </div>
+            </div>
+            <p class="mini-copy">Each position mainly attends to the token just before it. This is the native signature you want to spot before telling a routing story.</p>
+            <div class="pattern-frame">
+              <div class="axis-row"><span>s1</span><span>s2</span><span>s3</span><span>s4</span><span>s5</span><span>s6</span><span>s7</span><span>s8</span><span>s9</span><span>s10</span></div>
+              <div class="pattern-grid">
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-rose"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-rose"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-rose"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-rose"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-rose"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-rose"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-rose"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell hot-rose"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell hot-rose"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell hot-gold"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+              </div>
+              <div class="axis-row"><span>d1</span><span>d2</span><span>d3</span><span>d4</span><span>d5</span><span>d6</span><span>d7</span><span>d8</span><span>d9</span><span>d10</span></div>
+            </div>
+            <div class="pattern-caption">Read it as destination positions on one axis and source positions on the other. The bright near-diagonal line is the clue.</div>
+          </div>
+          <div class="pattern-board">
+            <div class="pattern-head">
+              <div>
+                <div class="tiny-label">Induction head</div>
+                <h3>Stripe on the repeated half</h3>
+              </div>
+              <div class="pattern-meta">
+                <span class="artifact-chip gold">repeated half</span>
+                <span class="artifact-chip teal">offset stripe</span>
+              </div>
+            </div>
+            <p class="mini-copy">Once the second copy starts, the head attends from the current token to the matching token in the first copy. What matters is the offset stripe, not decorative color.</p>
+            <div class="pattern-frame">
+              <div class="axis-row"><span>s1</span><span>s2</span><span>s3</span><span>s4</span><span>s5</span><span>s6</span><span>s7</span><span>s8</span><span>s9</span><span>s10</span></div>
+              <div class="pattern-grid">
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-gold"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-gold"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-gold"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-gold"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-teal"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-teal"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hot-teal"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell hot-teal"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell hot-teal"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell hot-blue"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+              </div>
+              <div class="axis-row"><span>d1</span><span>d2</span><span>d3</span><span>d4</span><span>d5</span><span>d6</span><span>d7</span><span>d8</span><span>d9</span><span>d10</span></div>
+            </div>
+            <div class="pattern-note">In the real notebook, this is the signature to stare at first. Then you ask whether attribution and ablation agree that the same head matters.</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="ve-card ve-card--amber">
+            <h3>Fallbacks still appear</h3>
+            <p>BOS and current-token attention often show up as parking spots or generic defaults. That does not erase the induction signature. It just means real heads are often mixed-purpose.</p>
+          </div>
+          <div class="ve-card ve-card--rose">
+            <h3>Evidence tier</h3>
+            <p>Pattern evidence is clue-level evidence, not proof. It is fast to inspect and great for narrowing the search. Attribution, ablation, and weight analysis are what push the claim upward.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s7" class="sec-head">
+          <div class="section-label">07 • hooks, cache, and attribution</div>
+          <h2>Start with cache, then use hooks to ask what matters.</h2>
+          <p class="section-kicker">This is the practical investigation loop the notebook wants you to learn.</p>
+        </div>
+        <div class="tool-grid">
+          <div class="ve-card ve-card--blue">
+            <h3><code>run_with_cache</code></h3>
+            <p>Your standard first move. Run the model once and keep the named activations. That gives you attention patterns, head outputs, residual stream slices, and the intermediate tensors you want to inspect.</p>
+          </div>
+          <div class="ve-card ve-card--teal">
+            <h3>Hook</h3>
+            <p>A hook is a named attachment point in the forward pass. You can use it to watch a tensor, copy it out, or replace part of it. Same model, same pass, more visibility.</p>
+          </div>
+          <div class="ve-card ve-card--gold">
+            <h3>Direct logit attribution</h3>
+            <p>Ask a sharp question: which component pushes the correct answer token up? Attribution turns a vague “this head looks important” into a contribution score tied to the actual prediction.</p>
+          </div>
+        </div>
+        <div class="metric-strip">
+          <div class="metric">
+            <strong>Inspect</strong>
+            <span class="muted">Cache the run, read the attention pattern, then pull the head output or residual slice you care about.</span>
+          </div>
+          <div class="metric">
+            <strong>Intervene</strong>
+            <span class="muted">Attach a hook at the named activation and zero, replace, or patch the candidate signal.</span>
+          </div>
+          <div class="metric">
+            <strong>Measure</strong>
+            <span class="muted">Check loss, target logits, and direct logit attribution to see whether the circuit actually mattered.</span>
+          </div>
+        </div>
+        <div class="evidence-grid">
+          <div class="ve-card ve-card--sage">
+            <h3>Observation and intervention</h3>
+            <ul class="bullet-list">
+              <li>Observe a head’s pattern or output in the cache.</li>
+              <li>Hook the same point to zero it out or replace it.</li>
+              <li>Measure what changes in the logits or loss.</li>
+            </ul>
+          </div>
+          <div class="ve-card ve-card--amber">
+            <h3>What attribution is telling you</h3>
+            <ul class="bullet-list">
+              <li>A positive score means the component helps the right answer.</li>
+              <li>A weak score can still matter if the circuit composes through later heads.</li>
+              <li>That is why attribution and composition belong together.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Move</th>
+                  <th>Plain-language question</th>
+                  <th>What you expect to see</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Cache activations</strong></td>
+                  <td>Where is the candidate signal?</td>
+                  <td>Head patterns, head outputs, and residual writes that line up with the task.</td>
+                </tr>
+                <tr>
+                  <td><strong>Hook and ablate</strong></td>
+                  <td>Does the model rely on this component?</td>
+                  <td>Performance or target-logit drop when the right head is removed.</td>
+                </tr>
+                <tr>
+                  <td><strong>Direct logit attribution</strong></td>
+                  <td>Which component pushes the right token?</td>
+                  <td>A measurable contribution to the correct next-token logit.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s8" class="sec-head">
+          <div class="section-label">08 • core induction mechanism</div>
+          <h2>Induction is a two-layer route, match, copy circuit.</h2>
+          <p class="section-kicker">One layer routes the previous token feature. A later layer matches on it and copies the next token.</p>
+        </div>
+        <div class="mechanism-strip">
+          <div class="mechanism-grid">
+            <div class="mechanism-card">
+              <div class="tiny-label">Route</div>
+              <strong>Previous-token head</strong>
+              <p>Layer 0 writes “what came just before this position” into the shared stream.</p>
+            </div>
+            <div class="mechanism-card">
+              <div class="tiny-label">Match</div>
+              <strong>Induction QK</strong>
+              <p>Layer 1 uses that routed feature to find the earlier position with the same predecessor.</p>
+            </div>
+            <div class="mechanism-card">
+              <div class="tiny-label">Copy</div>
+              <strong>Induction OV</strong>
+              <p>Once the earlier source is selected, the head transports the payload that points toward the correct next token.</p>
+            </div>
+          </div>
+          <div class="mermaid-shell">
+            <div class="mermaid-wrap" data-zoom="1">
+              <div class="mermaid-controls">
+                <button type="button" data-zoom-in>+</button>
+                <button type="button" data-zoom-out>−</button>
+                <button type="button" data-zoom-reset>↺</button>
+              </div>
+              <div class="mermaid-panzoom">
+                <div class="mermaid">
+flowchart TD
+  A[Repeated token at current position] --> B[Layer 0 previous-token head]
+  B --> C[Writes prior-token feature into residual stream]
+  C --> D[Layer 1 induction head QK]
+  D --> E[Find earlier token with same predecessor]
+  E --> F[Layer 1 induction head OV]
+  F --> G[Write copied payload toward next-token logit]
+  classDef blue fill:#d9e7f4,stroke:#3e648d,color:#1a2430,stroke-width:2px;
+  classDef teal fill:#d8f0ed,stroke:#2e7c76,color:#1a2430,stroke-width:2px;
+  classDef gold fill:#f4e5c7,stroke:#9a6d21,color:#1a2430,stroke-width:2px;
+  class A,C,E blue;
+  class B,D teal;
+  class F,G gold;
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="source-lane">
+            <div class="source-node route"><span class="top">t-1</span><span class="main">A</span></div>
+            <div class="source-node route"><span class="top">t</span><span class="main">B</span></div>
+            <div class="source-node match"><span class="top">layer 0 write</span><span class="main">“prev = A”</span></div>
+            <div class="source-node match"><span class="top">layer 1 query</span><span class="main">find A→?</span></div>
+            <div class="source-node copy"><span class="top">source hit</span><span class="main">A B</span></div>
+            <div class="source-node copy"><span class="top">prediction</span><span class="main">boost B</span></div>
+          </div>
+          <div class="grid-2">
+            <div class="ve-card ve-card--gold">
+              <h3>Why two layers are required</h3>
+              <p>Same-layer heads all read the same input residual stream. They cannot wait for another head in that layer to write a fresh intermediate feature first. Depth gives you the sequential dependency: route in one layer, match and copy in the next.</p>
+            </div>
+            <div class="ve-card ve-card--danger">
+              <h3>Misconception repair</h3>
+              <p>Induction is not “the head finds the same token and copies the next token” in one indivisible move. The whole point is the split between routing a useful feature and then using that feature to guide source selection and payload transfer.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s9" class="sec-head">
+          <div class="section-label">09 • reverse engineering: QK, OV, composition</div>
+          <h2>Patterns show the behavior. Weight analysis checks the story.</h2>
+          <p class="section-kicker">This is the top-end lesson payload that turns “looks right” into “the structure supports it”.</p>
+        </div>
+        <div class="mechanism-strip reverse-board">
+          <div class="reverse-intro">
+            <div class="ve-card ve-card--rose">
+              <h3>Activation-level evidence</h3>
+              <ul class="bullet-list">
+                <li>Attention pattern looks like previous-token or induction.</li>
+                <li>Attribution says the head pushes the correct logit.</li>
+                <li>Ablation hurts the repeated-half prediction.</li>
+              </ul>
+              <p class="mini-copy">That is strong evidence about what the model is doing on this input.</p>
+            </div>
+            <div class="reverse-summary">
+              <div class="summary-row"><strong>QK</strong><p>Check whether the head is structurally built to pick the source your story needs.</p></div>
+              <div class="summary-row"><strong>OV</strong><p>Check whether the source, once selected, writes the payload your story claims gets copied.</p></div>
+              <div class="summary-row"><strong>Compose</strong><p>Check whether one head writes a feature a later head can actually read.</p></div>
+            </div>
+          </div>
+          <div class="reverse-step-grid">
+            <div class="reverse-step">
+              <span class="tiny-label">Step 1</span>
+              <h3>QK asks where to look</h3>
+              <p>Take the query side from the destination position and the key side from candidate source positions. Their product tells you which earlier tokens the head is structurally built to match.</p>
+              <p class="mini-copy">For induction, that matching rule should light up the earlier token with the same predecessor.</p>
+            </div>
+            <div class="reverse-step">
+              <span class="tiny-label">Step 2</span>
+              <h3>OV decides what gets carried</h3>
+              <p>Take the value read from the chosen source, then map it through the output matrix. This tells you what feature the head writes back into the residual stream once it has found the source.</p>
+              <p class="mini-copy">For induction, that write should push the token that came after the matched source.</p>
+            </div>
+            <div class="reverse-step">
+              <span class="tiny-label">Step 3</span>
+              <h3>Composition and <code>FactoredMatrix</code></h3>
+              <p>Ask whether one head writes a feature that another head can read. Keep the large products factored so the structure stays inspectable instead of collapsing into one opaque matrix.</p>
+              <p class="mini-copy">That is the clean bridge from behavior to mechanism.</p>
+            </div>
+          </div>
+          <details class="collapsible">
+            <summary>Reference table, what each analysis is actually checking</summary>
+            <div class="appendix-content">
+              <div class="table-wrap">
+                <div class="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Analysis</th>
+                        <th>Question</th>
+                        <th>Learner-friendly read</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>QK analysis</strong></td>
+                        <td>Does source selection line up with the proposed matching rule?</td>
+                        <td>Multiply through the query and key side to see which token relationships are favored.</td>
+                      </tr>
+                      <tr>
+                        <td><strong>OV analysis</strong></td>
+                        <td>Does the copied payload line up with the proposed output story?</td>
+                        <td>Multiply through the output and value side to inspect what features or token directions the head writes.</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Composition analysis</strong></td>
+                        <td>Do two heads cooperate as a chain instead of acting alone?</td>
+                        <td>Check whether the write from one head lands in a subspace the later head can read.</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Factored matrices</strong></td>
+                        <td>Why use them?</td>
+                        <td>They let you inspect big matrix products in a form that is easier to compute with and easier to interpret than expanding everything into one dense matrix.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+        <div class="mermaid-shell">
+          <div class="mermaid-wrap" data-zoom="1">
+            <div class="mermaid-controls">
+              <button type="button" data-zoom-in>+</button>
+              <button type="button" data-zoom-out>−</button>
+              <button type="button" data-zoom-reset>↺</button>
+            </div>
+            <div class="mermaid-panzoom">
+              <div class="mermaid">
+flowchart TD
+  A[Candidate head] --> B[Pattern signature]
+  A --> C[Logit attribution]
+  A --> D[Ablation result]
+  A --> E[QK factored matrix]
+  A --> F[OV factored matrix]
+  E --> G[Source-selection story holds]
+  F --> H[Payload story holds]
+  B --> I[Clue]
+  C --> J[Contribution]
+  D --> K[Causal support]
+  G --> L[Mechanism]
+  H --> L
+  M[Composition scores] --> L
+  classDef blue fill:#d9e7f4,stroke:#3e648d,color:#1a2430,stroke-width:2px;
+  classDef gold fill:#f4e5c7,stroke:#9a6d21,color:#1a2430,stroke-width:2px;
+  classDef teal fill:#d8f0ed,stroke:#2e7c76,color:#1a2430,stroke-width:2px;
+  class A,M blue;
+  class B,C,D,E,F teal;
+  class G,H,I,J,K,L gold;
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-up">
+        <div id="s10" class="sec-head">
+          <div class="section-label">10 • short mastery check</div>
+          <h2>Use these to see if the lesson compressed.</h2>
+          <p class="section-kicker">Five checks, each aimed at a different part of the week 4 arc.</p>
+        </div>
+        <div class="check-grid">
+          <div class="ve-card ve-card--gold">
+            <h3>Mechanism</h3>
+            <p>Why does induction need at least two layers, and what does each layer contribute?</p>
+          </div>
+          <div class="ve-card ve-card--teal">
+            <h3>Tooling</h3>
+            <p>You suspect a head is important. Why is <code>run_with_cache</code> usually your first move before intervention?</p>
+          </div>
+          <div class="ve-card ve-card--rose">
+            <h3>Evidence tier</h3>
+            <p>You found a clean induction stripe. What extra evidence would move the claim beyond clue level?</p>
+          </div>
+          <div class="ve-card ve-card--blue">
+            <h3>Reverse engineering</h3>
+            <p>What would QK analysis tell you that OV analysis would not, and vice versa?</p>
+          </div>
+          <div class="ve-card ve-card--sage" style="grid-column: 1 / -1;">
+            <h3>Transfer</h3>
+            <p>If a new task seems to require “find the earlier matching context, then copy what followed”, what signatures, interventions, and weight checks would you expect to try first?</p>
+          </div>
+        </div>
+
+        <details class="collapsible">
+          <summary>Appendix, quick notebook moves</summary>
+          <div class="appendix-content stack">
+            <div class="ve-card ve-card--recessed ve-card--blue">
+              <div class="tiny-label">Core moves</div>
+              <ul class="bullet-list">
+                <li>Load a <code>HookedTransformer</code> and inspect the tokenizer, layer count, and head count.</li>
+                <li>Use <code>run_with_cache</code> to collect activations and attention patterns.</li>
+                <li>Find previous-token and induction candidates from repeated random sequences.</li>
+                <li>Use hooks for observation, then basic ablation or replacement.</li>
+                <li>Use direct logit attribution, then QK/OV and composition analysis.</li>
+              </ul>
+            </div>
+          </div>
+        </details>
+
+        <p class="footer-note">This page is a pre-code companion. The notebook is where you run the probes. The goal here is to make every probe feel motivated before you touch the code.</p>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+      themeVariables: {
+        fontFamily: 'IBM Plex Sans, sans-serif',
+        fontSize: '19px',
+        primaryColor: '#d9e7f4',
+        primaryTextColor: '#1a2430',
+        primaryBorderColor: '#3e648d',
+        secondaryColor: '#d8f0ed',
+        secondaryTextColor: '#1a2430',
+        secondaryBorderColor: '#2e7c76',
+        tertiaryColor: '#f4e5c7',
+        tertiaryTextColor: '#1a2430',
+        tertiaryBorderColor: '#9a6d21',
+        lineColor: '#7f8a95',
+        clusterBkg: '#f8f4ef',
+        clusterBorder: '#7c8b9a',
+        nodeBorder: '#6f7f92',
+        mainBkg: '#f8f2ea',
+        textColor: '#1a2430'
+      }
+    });
+
+    await mermaid.run({ querySelector: '.mermaid' });
+
+    const applyPanZoom = (wrap) => {
+      const panzoom = wrap.querySelector('.mermaid-panzoom');
+      if (!panzoom) return;
+      let scale = 1;
+      let x = 0;
+      let y = 0;
+      let dragging = false;
+      let startX = 0;
+      let startY = 0;
+
+      const render = () => {
+        panzoom.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        if (scale > 1.001) panzoom.classList.add('drag-ready');
+        else panzoom.classList.remove('drag-ready');
+      };
+
+      const clamp = () => {
+        if (scale <= 1) { x = 0; y = 0; }
+      };
+
+      wrap.querySelector('[data-zoom-in]')?.addEventListener('click', () => {
+        scale = Math.min(2.6, scale + 0.16);
+        render();
+      });
+      wrap.querySelector('[data-zoom-out]')?.addEventListener('click', () => {
+        scale = Math.max(1, scale - 0.16);
+        clamp();
+        render();
+      });
+      wrap.querySelector('[data-zoom-reset]')?.addEventListener('click', () => {
+        scale = 1; x = 0; y = 0; render();
+      });
+
+      wrap.addEventListener('wheel', (event) => {
+        if (!(event.ctrlKey || event.metaKey)) return;
+        event.preventDefault();
+        const delta = event.deltaY < 0 ? 0.12 : -0.12;
+        scale = Math.min(2.8, Math.max(1, scale + delta));
+        clamp();
+        render();
+      }, { passive: false });
+
+      panzoom.addEventListener('pointerdown', (event) => {
+        if (scale <= 1) return;
+        dragging = true;
+        startX = event.clientX - x;
+        startY = event.clientY - y;
+        panzoom.classList.add('dragging');
+        panzoom.setPointerCapture(event.pointerId);
+      });
+
+      panzoom.addEventListener('pointermove', (event) => {
+        if (!dragging) return;
+        x = event.clientX - startX;
+        y = event.clientY - startY;
+        render();
+      });
+
+      const endDrag = (event) => {
+        dragging = false;
+        panzoom.classList.remove('dragging');
+        try { panzoom.releasePointerCapture(event.pointerId); } catch {}
+      };
+      panzoom.addEventListener('pointerup', endDrag);
+      panzoom.addEventListener('pointercancel', endDrag);
+      render();
+    };
+
+    document.querySelectorAll('.mermaid-wrap').forEach(applyPanZoom);
+
+    (function() {
+      const toc = document.getElementById('toc');
+      const links = toc.querySelectorAll('a');
+      const sections = [];
+      links.forEach(link => {
+        const id = link.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) sections.push({ id, el, link });
+      });
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            const match = sections.find(s => s.el === entry.target);
+            if (match) {
+              match.link.classList.add('active');
+              if (window.innerWidth <= 1100) {
+                match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+              }
+            }
+          }
+        });
+      }, { rootMargin: '-10% 0px -80% 0px' });
+
+      sections.forEach(s => observer.observe(s.el));
+
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const id = link.getAttribute('href').slice(1);
+          const el = document.getElementById(id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', '#' + id);
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

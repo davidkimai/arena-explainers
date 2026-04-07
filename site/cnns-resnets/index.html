@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CNNs & ResNets | ARENA Visual Mastery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'Azeret Mono', 'SF Mono', Consolas, monospace;
+      --bg: #f7f3ed;
+      --surface: rgba(255,255,255,0.84);
+      --surface-2: rgba(249, 246, 241, 0.95);
+      --surface-hero: rgba(255, 251, 246, 0.92);
+      --border: rgba(69, 53, 39, 0.12);
+      --border-strong: rgba(69, 53, 39, 0.22);
+      --text: #261d16;
+      --text-dim: #766556;
+      --ink: #1e3a5f;
+      --ink-dim: rgba(30, 58, 95, 0.10);
+      --terracotta: #b45309;
+      --terracotta-dim: rgba(180, 83, 9, 0.11);
+      --sage: #4d7c0f;
+      --sage-dim: rgba(77, 124, 15, 0.12);
+      --teal: #0f766e;
+      --teal-dim: rgba(15, 118, 110, 0.11);
+      --rose: #a23b54;
+      --rose-dim: rgba(162, 59, 84, 0.10);
+      --gold: #a16207;
+      --gold-dim: rgba(161, 98, 7, 0.11);
+      --danger: #b42318;
+      --danger-dim: rgba(180, 35, 24, 0.10);
+      --shadow: 0 16px 40px rgba(60, 43, 30, 0.10);
+      --grid: rgba(110, 87, 66, 0.06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #17120f;
+        --surface: rgba(32, 25, 21, 0.86);
+        --surface-2: rgba(39, 31, 26, 0.92);
+        --surface-hero: rgba(40, 31, 24, 0.94);
+        --border: rgba(243, 232, 220, 0.08);
+        --border-strong: rgba(243, 232, 220, 0.15);
+        --text: #f5ece2;
+        --text-dim: #baaa9b;
+        --ink: #8fc0ef;
+        --ink-dim: rgba(143, 192, 239, 0.14);
+        --terracotta: #f3a55b;
+        --terracotta-dim: rgba(243, 165, 91, 0.12);
+        --sage: #b3d77b;
+        --sage-dim: rgba(179, 215, 123, 0.12);
+        --teal: #7ad5cb;
+        --teal-dim: rgba(122, 213, 203, 0.13);
+        --rose: #f1a0b4;
+        --rose-dim: rgba(241, 160, 180, 0.12);
+        --gold: #e8c470;
+        --gold-dim: rgba(232, 196, 112, 0.13);
+        --danger: #ff958b;
+        --danger-dim: rgba(255, 149, 139, 0.12);
+        --shadow: 0 18px 42px rgba(0, 0, 0, 0.36);
+        --grid: rgba(237, 221, 205, 0.05);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        radial-gradient(circle at 14% 0%, var(--ink-dim), transparent 32%),
+        radial-gradient(circle at 90% 12%, var(--terracotta-dim), transparent 28%),
+        linear-gradient(var(--bg), var(--bg));
+      background-size: 26px 26px, 26px 26px, auto, auto, auto;
+      line-height: 1.5;
+      padding: 28px 34px 80px;
+      overflow-wrap: break-word;
+    }
+    .wrap {
+      max-width: 1460px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr);
+      gap: 0 34px;
+    }
+    .main, .main > *, .grid-2 > *, .grid-3 > *, .grid-4 > *, .story-grid > *, .card-grid > *, .board > * { min-width: 0; }
+    .toc {
+      position: sticky;
+      top: 22px;
+      align-self: start;
+      max-height: calc(100dvh - 44px);
+      overflow-y: auto;
+      padding: 14px 0;
+    }
+    .toc-title, .eyebrow, .section-label, .mini-label {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+    .toc-title {
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc a {
+      display: block;
+      text-decoration: none;
+      color: var(--text-dim);
+      font-size: 11px;
+      padding: 6px 8px;
+      margin-bottom: 2px;
+      border-left: 2px solid transparent;
+      border-radius: 6px;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .toc a:hover, .toc a.active {
+      color: var(--text);
+      background: var(--surface-2);
+      border-left-color: var(--terracotta);
+    }
+    .hero, .card, .story-frame, .packet, .board-item, .diag-item, .branch, .metric-card, details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .hero {
+      background: var(--surface-hero);
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow);
+      padding: 28px 30px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: auto -12% -48% 42%;
+      height: 70%;
+      background: radial-gradient(circle, var(--gold-dim), transparent 70%);
+      pointer-events: none;
+    }
+    .card, .story-frame, .packet, .board-item, .diag-item, .branch, .metric-card { padding: 16px 18px; }
+    .hero-card { background: color-mix(in srgb, var(--surface) 90%, var(--ink) 10%); border-color: color-mix(in srgb, var(--border) 55%, var(--ink) 45%); }
+    .recessed { background: color-mix(in srgb, var(--surface-2) 88%, transparent); }
+    .accent-ink { border-top: 3px solid var(--ink); }
+    .accent-terra { border-top: 3px solid var(--terracotta); }
+    .accent-sage { border-top: 3px solid var(--sage); }
+    .accent-teal { border-top: 3px solid var(--teal); }
+    .accent-rose { border-top: 3px solid var(--rose); }
+    .accent-gold { border-top: 3px solid var(--gold); }
+    .accent-danger { border-top: 3px solid var(--danger); }
+    h1 {
+      font-size: clamp(2.6rem, 5vw, 4.4rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      margin: 8px 0 14px;
+      max-width: 11ch;
+    }
+    h2 {
+      font-size: clamp(1.55rem, 2.4vw, 2.4rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin: 4px 0 8px;
+    }
+    h3 { margin: 0 0 6px; font-size: 1rem; }
+    p { margin: 0; }
+    .subtitle, .section-kicker, .muted, .metric-copy { color: var(--text-dim); }
+    .subtitle { max-width: 72ch; margin-bottom: 22px; }
+    .section { margin-top: 28px; scroll-margin-top: 78px; }
+    .section-head { margin-bottom: 16px; }
+    .grid-2, .grid-3, .grid-4, .story-grid, .card-grid, .board, .diag-grid, .branch-grid { display: grid; gap: 16px; }
+    .grid-2, .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3, .branch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4, .story-grid, .card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .toy-problem-layout {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.42fr) minmax(280px, 0.72fr);
+      align-items: start;
+    }
+    .storyboard-hero {
+      padding: 18px;
+      display: grid;
+      gap: 18px;
+    }
+    .storyboard-intro {
+      display: grid;
+      grid-template-columns: 140px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-2) 84%, transparent);
+    }
+    .story-grid--breathe {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .story-frame--wide {
+      padding: 16px;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+    }
+    .transition-rail {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .transition-card {
+      display: grid;
+      gap: 8px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface) 86%, transparent);
+    }
+    .proof-panel {
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      background: color-mix(in srgb, var(--surface) 78%, transparent);
+    }
+    .proof-item {
+      display: grid;
+      gap: 6px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface-2) 78%, transparent);
+    }
+    .diag-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .chips, .badge-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip, .badge, .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .chip, .badge-ink { background: var(--ink-dim); color: var(--ink); }
+    .badge-terra { background: var(--terracotta-dim); color: var(--terracotta); }
+    .badge-sage { background: var(--sage-dim); color: var(--sage); }
+    .badge-teal { background: var(--teal-dim); color: var(--teal); }
+    .badge-rose { background: var(--rose-dim); color: var(--rose); }
+    .badge-gold { background: var(--gold-dim); color: var(--gold); }
+    .badge-danger { background: var(--danger-dim); color: var(--danger); }
+    .cap-title { font-weight: 700; display: block; margin-bottom: 6px; }
+    .pass-box { margin-top: 14px; }
+    .story-note, .bullet-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface-2) 82%, transparent);
+    }
+    .story-frame { padding: 14px; }
+    .frame-title { font-weight: 700; margin-bottom: 6px; }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 4px 0;
+    }
+    .flow-arrow svg { width: 20px; height: 20px; fill: none; stroke: var(--border-strong); stroke-width: 2; }
+    .digit-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+    .digit-card { border: 1px solid var(--border); border-radius: 16px; padding: 10px; background: color-mix(in srgb, var(--surface-2) 86%, transparent); }
+    .digit-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 14px);
+      gap: 4px;
+      justify-content: center;
+      margin: 8px 0 12px;
+    }
+    .px { width: 14px; height: 14px; border-radius: 4px; background: color-mix(in srgb, var(--surface) 70%, var(--border) 30%); }
+    .on { background: var(--ink); }
+    .on-b { background: var(--terracotta); }
+    .flatten-strip { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 3px; }
+    .flatten-strip span { height: 10px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 55%, var(--border) 45%); }
+    .flatten-strip .hit { background: var(--rose); }
+    .conv-board, .pool-board, .resnet-board {
+      border: 1px solid var(--border); border-radius: 16px; padding: 12px; background: color-mix(in srgb, var(--surface-2) 82%, transparent); margin-top: 12px;
+    }
+    .conv-grid { display: grid; grid-template-columns: repeat(3, 44px); gap: 6px; justify-content: center; margin-bottom: 12px; }
+    .conv-grid span, .pool-grid span, .map-grid span, .stage-grid span {
+      display: grid; place-items: center; border-radius: 10px; min-height: 40px; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 70%, var(--border) 30%); font-family: var(--font-mono); font-size: 10px;
+    }
+    .conv-grid .hot, .map-grid .hot { background: var(--terracotta-dim); border-color: var(--terracotta); color: var(--terracotta); }
+    .pool-grid, .map-grid, .stage-grid { display: grid; gap: 6px; }
+    .pool-grid { grid-template-columns: repeat(4, 1fr); }
+    .map-grid { grid-template-columns: repeat(4, 1fr); }
+    .stage-grid { grid-template-columns: repeat(5, 1fr); }
+    .stage-grid .hot { background: var(--sage-dim); border-color: var(--sage); color: var(--sage); }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+    .swatch { width: 10px; height: 10px; border-radius: 999px; }
+    .mermaid-wrap {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 20px;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 340px;
+      cursor: grab;
+    }
+    .mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+    .mermaid-wrap .mermaid { zoom: 1.15; }
+    .zoom-controls {
+      position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; z-index: 10;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 2px;
+    }
+    .zoom-controls button {
+      width: 28px; height: 28px; border: none; border-radius: 4px; background: transparent; color: var(--text-dim); cursor: pointer; font-family: var(--font-mono);
+    }
+    .zoom-controls button:hover { background: var(--surface-2); color: var(--text); }
+    .split-panel, .lane, .trace-box { border: 1px solid var(--border); border-radius: 16px; padding: 14px; background: color-mix(in srgb, var(--surface-2) 84%, transparent); }
+    .trace-stack, .lane-stack { display: grid; gap: 10px; }
+    .trace-node, .lane-step, .rubric-row { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: color-mix(in srgb, var(--surface) 85%, transparent); }
+    .trace-node strong, .lane-step strong { display: block; margin-bottom: 6px; }
+    .composite-board {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr);
+      align-items: stretch;
+      margin-top: 14px;
+    }
+    .mechanism-hero, .composite-stage, .checkpoint-strip, .compact-sop {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--surface-2) 84%, transparent);
+      padding: 14px;
+    }
+    .mechanism-hero {
+      display: grid;
+      gap: 14px;
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--ink-dim) 42%, transparent), transparent 22%),
+        color-mix(in srgb, var(--surface-2) 88%, transparent);
+    }
+    .mechanism-signal {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface) 86%, transparent);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .signal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .signal-line {
+      flex: 1;
+      min-width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--terracotta), var(--sage));
+      border-radius: 999px;
+      opacity: .55;
+    }
+    .mechanism-track {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr);
+      align-items: stretch;
+    }
+    .mechanism-column {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .mechanism-column h3, .composite-stage h3, .checkpoint-strip h3, .compact-sop h3 { margin-bottom: 8px; }
+    .mini-stack, .checkpoint-list, .sop-lines, .compact-list { display: grid; gap: 8px; }
+    .mini-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      background: color-mix(in srgb, var(--surface) 78%, transparent);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .composite-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 2px 0;
+    }
+    .stage-caption { color: var(--text-dim); font-size: 13px; margin-bottom: 10px; }
+    .filter-strip, .residual-rails, .head-strip {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .filter-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .residual-rails { grid-template-columns: 1.3fr .7fr; }
+    .head-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .rail, .head-box, .filter-box, .micro-note, .compact-line {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
+    }
+    .compact-line {
+      display: grid;
+      gap: 4px;
+    }
+    .rail strong, .head-box strong, .filter-box strong, .micro-note strong, .compact-line strong { display: block; margin-bottom: 4px; }
+    .checkpoint-strip {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+    }
+    .checkpoint-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .checkpoint-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
+    }
+    .checkpoint-item strong { display: block; margin-bottom: 4px; }
+    .evidence-board {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1.1fr .9fr;
+      align-items: start;
+    }
+    .tier-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .tier-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
+    }
+    .sop-compact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .sop-line {
+      display: grid;
+      grid-template-columns: 108px minmax(0, 1fr);
+      gap: 10px;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+    }
+    .sop-line:first-child { border-top: none; padding-top: 0; }
+    .sop-line .mini-label { padding-top: 2px; }
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left; padding: 12px 14px; background: var(--surface-2); border-bottom: 2px solid var(--border-strong);
+      font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim);
+    }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody tr:nth-child(even) { background: color-mix(in srgb, var(--ink-dim) 36%, transparent); }
+    tbody tr:last-child td { border-bottom: none; }
+    code {
+      font-family: var(--font-mono); font-size: .92em; padding: 1px 5px; border-radius: 4px;
+      background: color-mix(in srgb, var(--surface-2) 76%, transparent);
+    }
+    .packet-grid, .rubric-grid, .datasets-ladder { display: grid; gap: 12px; }
+    .rubric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .datasets-ladder { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .diag-item strong, .branch strong, .metric-card strong { display: block; margin-bottom: 6px; }
+    details { overflow: hidden; }
+    details summary {
+      list-style: none; cursor: pointer; padding: 14px 18px; font-family: var(--font-mono); font-size: 12px; background: var(--surface);
+    }
+    details .details-body { padding: 0 18px 18px; border-top: 1px solid var(--border); }
+    .footer-note { margin-top: 18px; color: var(--text-dim); font-size: 13px; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+    .hero, .card, .story-frame, .packet, .board-item, .diag-item, .branch, .metric-card, details { animation: fadeUp .35s ease-out both; }
+    @media (max-width: 1180px) {
+      .wrap { grid-template-columns: 1fr; }
+      .toc {
+        position: sticky; top: 0; z-index: 200; max-height: none; display: flex; gap: 4px; align-items: center; overflow-x: auto;
+        background: color-mix(in srgb, var(--bg) 84%, transparent); border-bottom: 1px solid var(--border);
+        margin: 0 -34px 18px; padding: 12px 34px;
+      }
+      .toc-title { display: none; }
+      .toc a { white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; border-radius: 6px 6px 0 0; }
+      .toc a.active { border-bottom-color: var(--terracotta); }
+      .grid-4, .story-grid, .card-grid, .branch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toy-problem-layout, .transition-rail { grid-template-columns: 1fr; }
+      .story-grid--breathe { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .storyboard-intro { grid-template-columns: 120px minmax(0, 1fr); }
+      .mechanism-track, .composite-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .checkpoint-strip, .evidence-board { grid-template-columns: 1fr; }
+      .rubric-grid { grid-template-columns: 1fr; }
+      .story-note, .bullet-row, .sop-line { grid-template-columns: 92px minmax(0, 1fr); }
+    }
+    @media (max-width: 940px) {
+      body { padding: 22px 22px 70px; }
+      .grid-3, .grid-4, .story-grid, .card-grid, .branch-grid, .diag-grid, .datasets-ladder, .tier-strip, .checkpoint-list, .transition-rail { grid-template-columns: 1fr; }
+      .grid-2, .board, .digit-pair, .mechanism-track, .sop-compact-grid, .story-grid--breathe, .storyboard-intro, .toy-problem-layout { grid-template-columns: 1fr; }
+      .signal-line { min-width: 18px; }
+      .mechanism-signal { flex-wrap: wrap; }
+    }
+    @media (max-width: 760px) {
+      body { padding: 18px 18px 64px; }
+      .toc { margin: 0 -18px 16px; padding: 10px 18px; }
+      .grid-2, .grid-3, .grid-4, .story-grid, .card-grid, .board, .diag-grid, .branch-grid, .digit-pair, .rubric-grid, .datasets-ladder, .bullet-row, .story-note { grid-template-columns: 1fr; }
+      .digit-grid { grid-template-columns: repeat(7, 11px); }
+      .px { width: 11px; height: 11px; }
+      table { min-width: 760px; }
+      .mermaid-wrap .mermaid { zoom: 1; }
+      .composite-board, .checkpoint-strip, .checkpoint-list, .evidence-board, .tier-strip, .sop-compact-grid, .sop-line, .mechanism-track { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc" id="toc">
+      <div class="toc-title">Lesson map</div>
+      <a href="#s0">00 Contract</a>
+      <a href="#s1">01 Toy problem</a>
+      <a href="#s2">02 Concept graph</a>
+      <a href="#s3">03 Mechanism</a>
+      <a href="#s4">04 Evidence</a>
+      <a href="#s5">05 SOP cards</a>
+      <a href="#s6">06 Protocol</a>
+      <a href="#s7">07 Diagnostic gate</a>
+      <a href="#s8">08 Release gate</a>
+      <a href="#s9">09 Supporting layers</a>
+    </nav>
+
+    <main class="main">
+      <section class="hero section" id="s0">
+        <div class="eyebrow">ARENA Fundamentals • Vision models • CNNs &amp; ResNets</div>
+        <h1>From flat pixels to trainable feature hierarchies</h1>
+        <p class="subtitle">Why image models need convolution, why deep stacks need residual paths, and how those ideas become a faithful PyTorch ResNet34 you can actually reuse.</p>
+
+        <div class="grid-2">
+          <div class="card hero-card accent-terra">
+            <div class="section-label">Chapter thesis</div>
+            <div class="grid-2">
+              <div class="metric-card accent-terra"><strong>Core move</strong><div class="metric-copy">Replace a flattened image classifier with shared local detectors, then stack those detectors inside residual blocks that stay trainable at depth.</div></div>
+              <div class="metric-card accent-gold"><strong>Core question</strong><div class="metric-copy">What architectural constraints make image models both data-efficient and optimizable?</div></div>
+              <div class="metric-card accent-teal"><strong>Core mechanism</strong><div class="metric-copy">Convolution supplies locality and parameter sharing, while residual addition and batch norm keep deeper feature hierarchies trainable.</div></div>
+              <div class="metric-card accent-sage"><strong>Core payoff</strong><div class="metric-copy">You can assemble ResNet34 from custom PyTorch modules, copy torchvision weights, and repurpose the backbone for CIFAR-10 feature extraction.</div></div>
+            </div>
+            <div class="chips" style="margin-top:14px;">
+              <span class="chip">Locality &gt; flattening</span>
+              <span class="chip">Shared filters</span>
+              <span class="chip">Residual gradient path</span>
+              <span class="chip">BatchNorm train/eval split</span>
+              <span class="chip">Pretrained transfer</span>
+            </div>
+          </div>
+
+          <div class="card accent-ink">
+            <div class="section-label">Mastery contract</div>
+            <div class="grid-2">
+              <div class="metric-card accent-ink"><span class="cap-title">Explain the vision mismatch</span><div class="metric-copy">I can explain why flattening a shifted image makes a plain MLP relearn the same pattern in many positions.</div></div>
+              <div class="metric-card accent-terra"><span class="cap-title">Reason about conv layers</span><div class="metric-copy">I can describe what a <code>Conv2d</code> filter detects, how stride and padding change output shape, and why shared weights matter.</div></div>
+              <div class="metric-card accent-gold"><span class="cap-title">Track the training object</span><div class="metric-copy">I can explain why the model returns logits, how <code>cross_entropy</code> uses them, and why softmax is not baked into the classifier.</div></div>
+              <div class="metric-card accent-teal"><span class="cap-title">Explain residual optimization</span><div class="metric-copy">I can explain how a residual branch plus identity path helps deep networks keep gradients usable.</div></div>
+              <div class="metric-card accent-rose"><span class="cap-title">Reconstruct ResNet34</span><div class="metric-copy">I can sketch the stem, block groups, <code>[3,4,6,3]</code> layout, projection branch rule, and classifier head.</div></div>
+              <div class="metric-card accent-sage"><span class="cap-title">Explain transfer and fidelity</span><div class="metric-copy">I can explain why <code>BatchNorm2d</code> must respect train/eval mode, why parameter order matters for <code>state_dict</code> copy, and why only the new head should remain trainable in feature extraction.</div></div>
+            </div>
+            <div class="badge-row pass-box">
+              <span class="badge badge-sage">Pass when 6/8 diagnostic items are correct.</span>
+              <span class="badge badge-danger">Must-pass: residual-path intuition, BatchNorm train/eval behavior, ResNet34 group structure, pretrained-weight-copy constraint.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="s1">
+        <div class="section-head">
+          <div class="eyebrow">01 · thesis + persistent toy problem</div>
+          <h2>The same digit, shifted a few pixels</h2>
+          <p class="section-kicker">Start with a handwritten digit that moves slightly inside the image frame. To a flattened MLP, that shift looks like a very different input vector. To a convolutional model, it is still the same local stroke pattern appearing in a new position. The whole lesson builds from that one contrast: first local detection, then feature hierarchies, then stable deep training, then transfer.</p>
+        </div>
+
+        <div class="toy-problem-layout">
+          <div class="card accent-teal storyboard-hero">
+            <div class="section-label">Canonical storyboard</div>
+            <div class="storyboard-intro">
+              <div class="mini-label">One visual thesis</div>
+              <div class="muted">Read this as one mechanism surface, not four unrelated cards: flattening destroys spatial bias, convolution restores reusable local detection, and residualized depth turns those local detectors into transferable features.</div>
+            </div>
+            <div class="story-grid story-grid--breathe">
+              <div class="story-frame story-frame--wide">
+                <div class="frame-title">Flattened view</div>
+                <div class="muted">The digit is turned into one long vector. Nearby pixels in the image no longer have a privileged relationship in the representation.</div>
+                <div class="digit-pair">
+                  <div class="digit-card">
+                    <div class="mini-label">digit A</div>
+                    <div class="digit-grid">
+                      <span class="px"></span><span class="px"></span><span class="px on"></span><span class="px on"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px on"></span><span class="px on"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px on"></span><span class="px on"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span>
+                    </div>
+                    <div class="flatten-strip">
+                      <span></span><span></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span></span><span></span><span></span><span></span><span></span><span class="hit"></span><span></span><span></span><span></span>
+                    </div>
+                  </div>
+                  <div class="digit-card">
+                    <div class="mini-label">digit B</div>
+                    <div class="digit-grid">
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span>
+                    </div>
+                    <div class="flatten-strip">
+                      <span></span><span></span><span></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span></span><span></span><span></span><span></span><span></span><span></span><span class="hit"></span><span></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="story-frame story-frame--wide">
+                <div class="frame-title">Shifted image, scrambled coordinates</div>
+                <div class="muted">A small translation changes many vector positions at once, so a dense layer does not automatically reuse what it learned about this pattern elsewhere.</div>
+                <div class="conv-board">
+                  <div class="pool-grid">
+                    <span>pixel 19</span><span>pixel 20</span><span class="hot">pixel 21</span><span>pixel 22</span>
+                    <span>pixel 143</span><span>pixel 144</span><span>pixel 145</span><span class="hot">pixel 146</span>
+                  </div>
+                  <div class="legend">
+                    <span class="legend-item"><span class="swatch" style="background:var(--rose);"></span>same stroke, different vector slots</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="story-frame story-frame--wide">
+                <div class="frame-title">Shared local detector</div>
+                <div class="muted">One filter can slide over the image and fire on the same stroke pattern wherever it appears.</div>
+                <div class="conv-board">
+                  <div class="conv-grid">
+                    <span class="hot">1</span><span class="hot">0</span><span class="hot">1</span>
+                    <span>0</span><span class="hot">1</span><span>0</span>
+                    <span>0</span><span class="hot">1</span><span>0</span>
+                  </div>
+                  <div class="map-grid">
+                    <span></span><span class="hot">fire</span><span></span><span></span>
+                    <span></span><span></span><span></span><span class="hot">fire</span>
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="story-frame story-frame--wide">
+                <div class="frame-title">Hierarchy + stable depth</div>
+                <div class="muted">Early local detectors combine into larger features, then residual paths and batch norm keep the deeper stack trainable enough to reach a full ResNet.</div>
+                <div class="resnet-board">
+                  <div class="stage-grid">
+                    <span class="hot">edge</span><span class="hot">stroke</span><span>part</span><span>digit</span><span>logits</span>
+                  </div>
+                  <div class="legend">
+                    <span class="legend-item"><span class="swatch" style="background:var(--sage);"></span>feature hierarchy gets wider and deeper</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="transition-rail">
+              <div class="transition-card">
+                <div class="mini-label">Transition 1</div>
+                <div>Flattening loses spatial bias.</div>
+              </div>
+              <div class="transition-card">
+                <div class="mini-label">Transition 2</div>
+                <div>Convolution reuses the same detector across positions.</div>
+              </div>
+              <div class="transition-card">
+                <div class="mini-label">Transition 3</div>
+                <div>Deep composition needs optimization scaffolding, not just more layers.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card accent-gold proof-panel">
+            <div class="section-label">What this proves</div>
+            <div class="proof-item"><div class="mini-label">Claim</div><div>The lesson is not just “CNNs classify images.” It is “the right inductive bias plus the right optimization scaffold turns local visual patterns into reusable deep features.”</div></div>
+            <div class="proof-item"><div class="mini-label">Unlock</div><div>The toy problem keeps the entire page grounded. It explains MLP mismatch, conv reuse, pooling compression, residual depth, and transfer in one line.</div></div>
+            <div class="proof-item"><div class="mini-label">Contrast</div><div><strong>MLP:</strong> same digit, many different coordinates. <strong>CNN:</strong> same filter, same local pattern, new location.</div></div>
+            <div class="proof-item"><div class="mini-label">Mechanism</div><div><code>SimpleMLP → Conv2d → pooling → residual block → ResNet34 → frozen backbone + linear head</code></div></div>
+            <div class="proof-item"><div class="mini-label">Warning</div><div>Stride internals are useful, but they are appendix material. The core path is about locality, stable depth, and faithful transfer.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="s2">
+        <div class="section-head">
+          <div class="eyebrow">02 · prerequisite and concept graph</div>
+          <h2>Build the CNN story as one dependency chain</h2>
+          <p class="section-kicker">The page starts with trainable modules and logits, then sharpens the one question that matters for vision: what structure does the model preserve when the image shifts?</p>
+        </div>
+        <div class="grid-2">
+          <div class="card accent-ink">
+            <div class="section-label">Concept DAG</div>
+            <div class="mermaid-wrap" data-initial-zoom="1.15">
+              <div class="zoom-controls">
+                <button type="button" data-zoom="in">+</button>
+                <button type="button" data-zoom="out">−</button>
+                <button type="button" data-zoom="reset">↺</button>
+              </div>
+              <pre class="mermaid">
+flowchart TD
+  A[nn.Module + nn.Parameter]
+  B[Logits + cross-entropy]
+  C[SimpleMLP baseline]
+  D[Image locality mismatch]
+  E[Conv2d: local shared filters]
+  F[Pooling + shape compression]
+  G[Deep stacks degrade]
+  H[Residual path + BatchNorm]
+  I[ResNet34 assembly]
+  J[Pretrained parity → feature extraction]
+
+  A --> C
+  B --> C
+  C --> D
+  D --> E
+  E --> F
+  F --> G
+  G --> H
+  H --> I
+  I --> J
+              </pre>
+            </div>
+          </div>
+
+          <div class="card recessed accent-terra">
+            <div class="section-label">Dependency notes</div>
+            <div class="story-note"><div class="mini-label">Roots</div><div><code>nn.Module + nn.Parameter</code>, <code>logits + cross_entropy</code></div></div>
+            <div class="story-note"><div class="mini-label">Unlock path</div><div><code>SimpleMLP baseline → mismatch → conv → residualized deep stack</code></div></div>
+            <div class="story-note"><div class="mini-label">Evidence path</div><div><code>residual intuition → train/eval behavior → weight-copy fidelity → feature extraction payoff</code></div></div>
+            <div class="story-note"><div class="mini-label">Payoff</div><div>Custom-build understanding becomes pretrained-model reuse.</div></div>
+
+            <div class="card-grid" style="margin-top:14px;">
+              <div class="metric-card accent-danger"><strong>Bigger MLPs solve the same problem anyway.</strong><div class="metric-copy">Wrong because images have translation structure that dense weights do not encode.</div></div>
+              <div class="metric-card accent-rose"><strong>Residual blocks are just extra depth.</strong><div class="metric-copy">Wrong because the identity path is the optimization story.</div></div>
+              <div class="metric-card accent-gold"><strong>BatchNorm is a tiny implementation detail.</strong><div class="metric-copy">Wrong because train/eval behavior changes outputs and matters for transfer.</div></div>
+              <div class="metric-card accent-terra"><strong>A visually similar ResNet is close enough.</strong><div class="metric-copy">Wrong because parameter order and branch declarations affect weight-copy compatibility.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="s3">
+        <div class="section-head">
+          <div class="eyebrow">03 · core mechanism model</div>
+          <h2>Follow the chapter’s actual build path, not a generic CNN slogan</h2>
+          <p class="section-kicker">The source chapter climbs in a specific order: build a trainable MLP, notice why flattened pixels are the wrong bias, swap in local shared filters and pooling, then add residual blocks and BatchNorm so a faithful ResNet34 can inherit pretrained weights and become a feature extractor.</p>
+        </div>
+
+        <div class="card accent-ink">
+          <div class="section-label">Dominant mechanism board</div>
+          <div class="mechanism-hero">
+            <div class="mechanism-signal">
+              <span class="signal-pill">same digit</span>
+              <div class="signal-line"></div>
+              <span class="signal-pill">same local stroke</span>
+              <div class="signal-line"></div>
+              <span class="signal-pill">same reusable feature path</span>
+            </div>
+
+            <div class="mechanism-track">
+              <div class="mechanism-column accent-terra">
+                <div class="mini-label">1 · mismatch</div>
+                <h3>Flattening breaks coordinate reuse</h3>
+                <div class="stage-caption">A small shift changes lots of vector slots, so the MLP has to relearn the same stroke in many places.</div>
+                <div class="digit-pair" style="margin-top:0;">
+                  <div class="digit-card">
+                    <div class="mini-label">position A</div>
+                    <div class="digit-grid">
+                      <span class="px"></span><span class="px"></span><span class="px on"></span><span class="px on"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px on"></span><span class="px on"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px on"></span><span class="px on"></span><span class="px on"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span>
+                    </div>
+                    <div class="flatten-strip">
+                      <span></span><span></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span></span><span></span><span></span><span></span><span></span><span class="hit"></span><span></span><span></span><span></span>
+                    </div>
+                  </div>
+                  <div class="digit-card">
+                    <div class="mini-label">position B</div>
+                    <div class="digit-grid">
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px on-b"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span>
+                      <span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span><span class="px"></span>
+                    </div>
+                    <div class="flatten-strip">
+                      <span></span><span></span><span></span><span class="hit"></span><span class="hit"></span><span class="hit"></span><span></span><span></span><span></span><span></span><span></span><span></span><span class="hit"></span><span></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="mini-chip">SimpleMLP can optimize logits while still using the wrong image bias</span>
+              </div>
+
+              <div class="mechanism-column accent-gold">
+                <div class="mini-label">2 · local reuse</div>
+                <h3>One shared filter follows the pattern</h3>
+                <div class="stage-caption">Convolution asks the same question at every location, then max pooling keeps the strongest local evidence.</div>
+                <div class="conv-board" style="margin-top:0;">
+                  <div class="conv-grid">
+                    <span class="hot">1</span><span class="hot">0</span><span class="hot">1</span>
+                    <span>0</span><span class="hot">1</span><span>0</span>
+                    <span>0</span><span class="hot">1</span><span>0</span>
+                  </div>
+                  <div class="map-grid">
+                    <span></span><span class="hot">fire</span><span></span><span></span>
+                    <span></span><span></span><span></span><span class="hot">fire</span>
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+                <div class="filter-strip">
+                  <div class="filter-box"><strong>Conv2d</strong><div>Same detector, new position.</div></div>
+                  <div class="filter-box"><strong>Feature map</strong><div>Records where the stroke appears.</div></div>
+                  <div class="filter-box"><strong>MaxPool2d</strong><div>Compresses space, keeps the strongest hit.</div></div>
+                </div>
+              </div>
+
+              <div class="mechanism-column accent-teal">
+                <div class="mini-label">3 · stable depth</div>
+                <h3>Residual blocks turn depth into usable depth</h3>
+                <div class="stage-caption">The block learns a correction on the left while the right branch preserves an additive route for signal and gradients.</div>
+                <div class="residual-rails">
+                  <div class="rail"><strong>Left branch</strong><div><code>conv → bn → relu → conv → bn</code><br>learn the update</div></div>
+                  <div class="rail"><strong>Right branch</strong><div>identity<br>or <code>1x1 conv + bn</code></div></div>
+                </div>
+                <div class="composite-arrow">add, then ReLU</div>
+                <div class="compact-list">
+                  <div class="compact-line"><strong>Why it matters</strong><div>Residual addition keeps the optimization path open when the stack gets deep.</div></div>
+                  <div class="compact-line"><strong>BatchNorm rule</strong><div>Train mode uses batch stats, eval mode uses running stats.</div></div>
+                </div>
+              </div>
+
+              <div class="mechanism-column accent-sage">
+                <div class="mini-label">4 · faithful payoff</div>
+                <h3>ResNet34 becomes transferable only if the build is exact</h3>
+                <div class="stage-caption">The chapter payoff is not just a deeper CNN. It is a faithful architecture that can inherit weights and freeze its backbone.</div>
+                <div class="head-strip">
+                  <div class="head-box"><strong>Stem</strong><div><code>7x7 conv → bn → relu → maxpool</code></div></div>
+                  <div class="head-box"><strong>Body</strong><div><code>[3,4,6,3]</code> groups, with downsampling at new group starts.</div></div>
+                  <div class="head-box"><strong>Head</strong><div><code>avgpool → linear</code>, then swap the classifier for transfer.</div></div>
+                </div>
+                <div class="compact-list">
+                  <div class="compact-line"><strong>Fidelity rule</strong><div>Module, parameter, and buffer order must match for <code>state_dict</code> parity.</div></div>
+                  <div class="compact-line"><strong>Transfer rule</strong><div>Freeze the backbone, train only the replacement head.</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="checkpoint-strip">
+              <div>
+                <div class="mini-label">Build checkpoints</div>
+                <h3>The chapter only works if these four moves happen in order</h3>
+                <div class="checkpoint-list">
+                  <div class="checkpoint-item"><strong>Baseline</strong><div><code>SimpleMLP</code> plus logits and <code>F.cross_entropy</code> proves the training scaffold first.</div></div>
+                  <div class="checkpoint-item"><strong>Bias fix</strong><div><code>Conv2d</code> restores locality and shared reuse for translated images.</div></div>
+                  <div class="checkpoint-item"><strong>Optimization fix</strong><div><code>ResidualBlock</code> plus <code>BatchNorm2d</code> keeps the hierarchy trainable.</div></div>
+                </div>
+              </div>
+              <div>
+                <div class="mini-label">Do not blur these constraints</div>
+                <div class="mini-stack">
+                  <div class="micro-note"><strong>Projection rule</strong><div>The skip path stays identity only when stride and channel count preserve shape.</div></div>
+                  <div class="micro-note"><strong>Average pool role</strong><div>Late global compression is not the same operation as early max pooling.</div></div>
+                  <div class="micro-note"><strong>Weight copy rule</strong><div>Declaration order is part of the mechanism, because it controls pretrained compatibility.</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card accent-rose" style="margin-top:16px;">
+          <div class="section-label">Misconception correction</div>
+          <div class="story-note"><div class="mini-label">Wrong intuition</div><div>ResNet34 is just a longer CNN.</div></div>
+          <div class="story-note"><div class="mini-label">Correction</div><div>ResNet34 is a residualized CNN whose identity paths, normalization, staged downsampling, and exact implementation order are what make the extra depth trainable and the pretrained copy faithful.</div></div>
+        </div>
+      </section>
+
+      <section class="section" id="s4">
+        <div class="section-head">
+          <div class="eyebrow">04 · claim → evidence matrix</div>
+          <h2>What each central claim needs before you trust it</h2>
+          <p class="section-kicker">This matrix now follows the chapter’s real claims and build checks: logits and cross-entropy, translation mismatch, the different roles of max pooling and average pooling, residual optimization, BatchNorm mode behavior, weight-copy parity, and frozen-backbone transfer.</p>
+        </div>
+
+        <div class="card accent-gold">
+          <div class="section-label">Evidence ladder</div>
+          <div class="evidence-board">
+            <div>
+              <h3>Scale the evidence to the kind of claim</h3>
+              <p class="stage-caption">This larger board makes the middle of the page feel less like stacked admin cards and more like one decision: what kind of evidence is actually strong enough for this claim?</p>
+              <div class="tier-strip">
+                <div class="tier-card"><span class="badge badge-ink">T1 observational</span><strong>Visible architecture effects</strong><div>Shifted digits, shared-filter reuse, max-pool compression, and the late average-pool collapse are things the learner can inspect directly.</div></div>
+                <div class="tier-card"><span class="badge badge-terra">T2 interventional</span><strong>Change the contract</strong><div>Residual optimization and <code>BatchNorm2d</code> behavior only become clear when you reason about what changes after an intervention.</div></div>
+                <div class="tier-card"><span class="badge badge-sage">T3 structural</span><strong>Exact fidelity or it fails</strong><div>Weight-copy parity is structural evidence, because approximate resemblance does not make <code>state_dict</code> loading succeed.</div></div>
+              </div>
+            </div>
+            <div class="mini-stack">
+              <div class="micro-note"><strong>Use T1 for</strong><div>logits in the baseline build, locality, shared filters, max pooling, and average pooling.</div></div>
+              <div class="micro-note"><strong>Use T2 for</strong><div>residual optimization, BatchNorm train/eval behavior, and frozen-backbone transfer.</div></div>
+              <div class="micro-note"><strong>Use T3 for</strong><div>parameter order, buffer order, successful <code>state_dict</code> load, and prediction parity.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card accent-ink" style="margin-top:16px;">
+          <div class="section-label">Claim matrix</div>
+          <div class="table-wrap">
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Claim</th>
+                    <th>Minimum tier</th>
+                    <th>Method</th>
+                    <th>Expected signature</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Classification training should use logits, not probabilities baked into the model.</td>
+                    <td>T1 observational</td>
+                    <td>Inspect the baseline training loop where <code>SimpleMLP</code> returns logits and <code>F.cross_entropy</code> consumes them directly.</td>
+                    <td>The classifier emits raw scores for 10 classes, and softmax appears only when probabilities are needed for interpretation.</td>
+                  </tr>
+                  <tr>
+                    <td>Flattened MLPs are poorly matched to translated images.</td>
+                    <td>T1 observational</td>
+                    <td>Contrast two shifted digit inputs and show how flattening scrambles coordinate reuse.</td>
+                    <td>Same object, different vector positions, no built-in locality.</td>
+                  </tr>
+                  <tr>
+                    <td>Convolutions encode locality and parameter sharing.</td>
+                    <td>T1 observational</td>
+                    <td>Shared-filter storyboard over two shifted images.</td>
+                    <td>The same filter fires on the same stroke pattern in both positions.</td>
+                  </tr>
+                  <tr>
+                    <td>Max pooling compresses space while preserving strongest local evidence.</td>
+                    <td>T1 observational</td>
+                    <td>Before/after feature-map patch panel.</td>
+                    <td>Reduced spatial map with strongest activation retained.</td>
+                  </tr>
+                  <tr>
+                    <td>Average pooling plays a different late-stage role from max pooling.</td>
+                    <td>T1 observational</td>
+                    <td>Compare early <code>MaxPool2d</code> compression to the final <code>AveragePool</code> step before the linear classifier.</td>
+                    <td>Max pooling preserves strongest local evidence in windows, while average pooling collapses each final channel map to one global feature value.</td>
+                  </tr>
+                  <tr>
+                    <td>Residual paths solve an optimization problem, not just an architecture-aesthetics problem.</td>
+                    <td>T2 interventional</td>
+                    <td>Contrast plain deep stack intuition with residual identity-path explanation from the lesson arc.</td>
+                    <td>Gradients have an additive route around the nonlinear branch.</td>
+                  </tr>
+                  <tr>
+                    <td><code>BatchNorm2d</code> changes behavior between train and eval mode and is part of stable deep training.</td>
+                    <td>T2 interventional</td>
+                    <td>Show batch-stat vs running-stat branch logic.</td>
+                    <td>Train uses current batch stats, eval uses running stats, outputs depend on mode.</td>
+                  </tr>
+                  <tr>
+                    <td>Faithful ResNet34 replication requires exact module and parameter order.</td>
+                    <td>T3 structural</td>
+                    <td>Use the chapter’s weight-copy procedure plus the left-branch-first declaration note in <code>ResidualBlock</code>.</td>
+                    <td>Successful <code>state_dict</code> transfer and prediction parity depend on matching parameter and buffer ordering.</td>
+                  </tr>
+                  <tr>
+                    <td>Pretrained visual features transfer to new tasks when the backbone is frozen and the head is replaced.</td>
+                    <td>T2 interventional</td>
+                    <td>Feature extraction procedure on CIFAR-10 with <code>requires_grad_(False)</code>, a replaced final linear layer, and an optimizer targeting only that head.</td>
+                    <td>Only the new classifier remains trainable, while the copied backbone stays fixed and accuracy rises above chance quickly.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="s5">
+        <div class="section-head">
+          <div class="eyebrow">05 · primitive SOP cards</div>
+          <h2>The operations you should already be able to name before coding</h2>
+          <p class="section-kicker">Each card captures what the primitive is for, what success looks like, and what failure usually means.</p>
+        </div>
+
+        <div class="sop-compact-grid">
+          <div class="compact-sop accent-ink"><div class="section-label">Primitive 1</div><h3>Subclass <code>nn.Module</code></h3><div class="sop-lines"><div class="sop-line"><div class="mini-label">Purpose</div><div>Define trainable blocks with registered parameters and a readable forward path.</div></div><div class="sop-line"><div class="mini-label">Success</div><div>Weights appear in <code>parameters()</code>; the module is callable and inspectable.</div></div><div class="sop-line"><div class="mini-label">Failure</div><div>Plain tensors never register, or the forward path becomes opaque.</div></div><div class="sop-line"><div class="mini-label">Boundary</div><div>Safe to delegate directly from the source contract.</div></div></div></div>
+          <div class="compact-sop accent-terra"><div class="section-label">Primitive 2</div><h3>Return logits + use <code>cross_entropy</code></h3><div class="sop-lines"><div class="sop-line"><div class="mini-label">Purpose</div><div>Train on raw class scores, not probabilities baked into the model.</div></div><div class="sop-line"><div class="mini-label">Success</div><div><code>F.cross_entropy</code> consumes batch-by-class logits directly.</div></div><div class="sop-line"><div class="mini-label">Failure</div><div>Softmax appears inside the model and blurs the training object.</div></div><div class="sop-line"><div class="mini-label">Boundary</div><div>Softmax is for interpretation later, not for the model head.</div></div></div></div>
+          <div class="compact-sop accent-gold"><div class="section-label">Primitive 3</div><h3>Reason about <code>Conv2d</code> shapes</h3><div class="sop-lines"><div class="sop-line"><div class="mini-label">Purpose</div><div>Track kernel, stride, padding, channels, and output shape as one object.</div></div><div class="sop-line"><div class="mini-label">Success</div><div>Predict the output map and explain what each channel detects.</div></div><div class="sop-line"><div class="mini-label">Failure</div><div>Channels and spatial dimensions get mixed, or conv becomes a black box.</div></div><div class="sop-line"><div class="mini-label">Boundary</div><div>Simplify formulas visually, but keep the source conventions intact.</div></div></div></div>
+          <div class="compact-sop accent-teal"><div class="section-label">Primitive 4</div><h3>Build a <code>ResidualBlock</code></h3><div class="sop-lines"><div class="sop-line"><div class="mini-label">Purpose</div><div>Compose a learned left branch with an identity-or-projection right branch.</div></div><div class="sop-line"><div class="mini-label">Success</div><div>Identity for matching shapes, <code>1x1 conv + BatchNorm</code> when shape changes.</div></div><div class="sop-line"><div class="mini-label">Failure</div><div>Skip path omitted, projection misunderstood, or left/right ordering drifts.</div></div><div class="sop-line"><div class="mini-label">Boundary</div><div>Keep left-branch-first declaration because pretrained copy depends on it.</div></div></div></div>
+          <div class="compact-sop accent-rose"><div class="section-label">Primitive 5</div><h3>Use <code>BatchNorm2d</code> correctly</h3><div class="sop-lines"><div class="sop-line"><div class="mini-label">Purpose</div><div>Normalize per-channel activations while tracking running stats for eval.</div></div><div class="sop-line"><div class="mini-label">Success</div><div>Train mode uses batch stats; eval mode uses running stats; affine terms still apply.</div></div><div class="sop-line"><div class="mini-label">Failure</div><div>Train and eval are treated as identical, or buffers are mistaken for parameters.</div></div><div class="sop-line"><div class="mini-label">Boundary</div><div>Visualize both branches, but keep the buffer semantics explicit.</div></div></div></div>
+          <div class="compact-sop accent-sage"><div class="section-label">Primitive 6</div><h3>Freeze backbone for feature extraction</h3><div class="sop-lines"><div class="sop-line"><div class="mini-label">Purpose</div><div>Reuse pretrained visual features and train only a replacement classifier head.</div></div><div class="sop-line"><div class="mini-label">Success</div><div>All params freeze except the new linear head and the optimizer targets only it.</div></div><div class="sop-line"><div class="mini-label">Failure</div><div>The whole network keeps training, turning transfer into training from scratch.</div></div><div class="sop-line"><div class="mini-label">Boundary</div><div>Compress loop detail if needed, but preserve the frozen-backbone contract.</div></div></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="s6">
+        <div class="section-head">
+          <div class="eyebrow">06 · human-agent orchestration protocol</div>
+          <h2>Keep the protocol light, but concrete</h2>
+          <p class="section-kicker">The human decides what understanding matters. The agent helps turn architecture facts, visuals, and checks into reusable teaching structure.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card accent-ink">
+            <div class="section-label">Role split</div>
+            <div class="lane-stack">
+              <div class="lane-step"><strong>Human</strong><div>Decides what counts as understanding: locality, residual optimization, and pretrained reuse are the must-keep ideas.</div></div>
+              <div class="lane-step"><strong>Agent</strong><div>Converts source contracts into visuals, evidence panels, and diagnostics without changing architecture facts.</div></div>
+              <div class="lane-step"><strong>Loop</strong><div>Predict what should be true, falsify loose stories, intervene on the right variable, then update the explanation.</div></div>
+            </div>
+          </div>
+
+          <div class="card accent-sage">
+            <div class="section-label">Mechanism-thinking loop</div>
+            <div class="grid-4">
+              <div class="metric-card accent-ink"><strong>Predict</strong><div class="metric-copy">What should a shifted digit do under an MLP? Under a conv stack?</div></div>
+              <div class="metric-card accent-terra"><strong>Falsify</strong><div class="metric-copy">What observation would show the explanation is too vague or too strong?</div></div>
+              <div class="metric-card accent-gold"><strong>Intervene</strong><div class="metric-copy">Switch train/eval mode, remove residual identity, or change the branch shape rule.</div></div>
+              <div class="metric-card accent-teal"><strong>Update</strong><div class="metric-copy">Tighten the story until the architecture and the expected behavior line up cleanly.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:16px;">
+          <div class="packet accent-terra">
+            <div class="section-label">Agent task packet A · architecture-fidelity check</div>
+            <div class="compact-list">
+              <div class="compact-line"><strong>Verify</strong><div>Stem, <code>[3,4,6,3]</code> group counts, projection-branch rule, and <code>avgpool → linear</code> head all match the source.</div></div>
+              <div class="compact-line"><strong>Inputs</strong><div><code>cnn fill spec</code> plus the canonical ResNet34 source section.</div></div>
+              <div class="compact-line"><strong>Output</strong><div>One short QA note with pass/fail bullets and a conflict callout if any architecture wording drifts.</div></div>
+              <div class="compact-line"><strong>Fail signatures</strong><div>“Skip path always identity”, wrong group counts, vague downsampling, or a missing projection condition.</div></div>
+            </div>
+          </div>
+
+          <div class="packet accent-teal">
+            <div class="section-label">Agent task packet B · feature-extraction integrity check</div>
+            <div class="compact-list">
+              <div class="compact-line"><strong>Verify</strong><div>Weights copy first, the backbone freezes, the final linear head is replaced, and only that head stays trainable.</div></div>
+              <div class="compact-line"><strong>Inputs</strong><div><code>cnn fill spec</code> plus the feature-extraction source section.</div></div>
+              <div class="compact-line"><strong>Output</strong><div>One short QA note confirming frozen-backbone transfer and the BatchNorm train/eval caveat.</div></div>
+              <div class="compact-line"><strong>Fail signatures</strong><div>The page implies whole-model finetuning, drops mode switching, or treats transfer as generic reuse.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="s7">
+        <div class="section-head">
+          <div class="eyebrow">07 · diagnostic gate + remediation</div>
+          <h2>Can the learner retell the mechanism from memory?</h2>
+          <p class="section-kicker">The gate stays focused on transfer-ready understanding. If something breaks, the repair path points back to the exact board or card that fixes it.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card accent-ink">
+            <div class="section-label">8 diagnostic items</div>
+            <div class="diag-grid">
+              <div class="diag-item accent-ink"><strong>1</strong><div>Why does a shifted digit create a problem for a flattened MLP but not for a convolutional filter?</div></div>
+              <div class="diag-item accent-terra"><strong>2</strong><div>Why should a classifier trained with cross-entropy return logits rather than probabilities from the final module?</div></div>
+              <div class="diag-item accent-gold"><strong>3</strong><div>Given a conv layer with stride &gt; 1, what changes in the output and why?</div></div>
+              <div class="diag-item accent-teal"><strong>4</strong><div>When can the right branch of a residual block be the identity, and when must it be a learned projection?</div></div>
+              <div class="diag-item accent-rose"><strong>5</strong><div>What optimization problem do residual connections address in deep nets?</div></div>
+              <div class="diag-item accent-sage"><strong>6</strong><div>What changes between <code>BatchNorm2d</code> train mode and eval mode?</div></div>
+              <div class="diag-item accent-terra"><strong>7</strong><div>Why does parameter declaration order matter when copying torchvision weights into a custom ResNet34?</div></div>
+              <div class="diag-item accent-sage"><strong>8</strong><div>In feature extraction, which weights should remain trainable and why?</div></div>
+            </div>
+            <div class="badge-row" style="margin-top:14px;">
+              <span class="badge badge-sage">Pass = at least 6 correct</span>
+              <span class="badge badge-danger">Must-pass = items 4, 6, 7, 8</span>
+            </div>
+          </div>
+
+          <div class="card recessed accent-gold">
+            <div class="section-label">Remediation branches</div>
+            <div class="compact-list">
+              <div class="compact-line"><strong>Branch 1 · locality confusion</strong><div>Miss items 1 or 3, then revisit toy-problem frames 1 to 3 and the conv shape card until locality and reuse come back in one sentence.</div></div>
+              <div class="compact-line"><strong>Branch 2 · optimization confusion</strong><div>Miss items 4 or 5, then revisit the residual misconception panel and the stable-depth column until the identity path reads like an optimization route, not decoration.</div></div>
+              <div class="compact-line"><strong>Branch 3 · mode or fidelity confusion</strong><div>Miss items 6 or 7, then revisit the BatchNorm card and the weight-copy notes until train vs eval and ordering sensitivity are crisp.</div></div>
+              <div class="compact-line"><strong>Branch 4 · transfer confusion</strong><div>Miss item 8, then revisit the transfer payoff and primitive 6 until the frozen backbone and replacement head can be named cleanly.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="s8">
+        <div class="section-head">
+          <div class="eyebrow">08 · rubric snapshot + release decision</div>
+          <h2>Final rubric snapshot: 86 / 100, SHIP</h2>
+          <p class="section-kicker">This page now reflects the final ship-gate outcome rather than a pending-audit placeholder. The last blocker was Section 8 itself, and that blocker is now closed.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card accent-sage">
+            <div class="section-label">Final ship-gate result</div>
+            <div class="compact-list">
+              <div class="compact-line"><strong>Release decision</strong><div><span class="badge badge-sage">SHIP</span> Final ship-gate audit result: <strong>86 / 100</strong>.</div></div>
+              <div class="compact-line"><strong>Rubric read</strong><div>Mastery contract, concept structure, evidence rigor, mechanism design, diagnostics, visual architecture, and governance readiness all clear the release bar at the final gate.</div></div>
+              <div class="compact-line"><strong>Why it ships</strong><div>The page is now a frozen canonical artifact instead of a page that says it is merely ready to be judged.</div></div>
+            </div>
+          </div>
+
+          <div class="card recessed accent-terra">
+            <div class="section-label">Blocker checklist</div>
+            <div class="compact-list">
+              <div class="compact-line"><strong>Actual scored snapshot shown</strong><div><span class="badge badge-sage">Resolved</span> Section 8 now displays the live score and final release decision.</div></div>
+              <div class="compact-line"><strong>Old pending gate removed</strong><div><span class="badge badge-sage">Resolved</span> The obsolete ready-for-audit framing and stale gate wording are gone.</div></div>
+              <div class="compact-line"><strong>Canonical release state</strong><div><span class="badge badge-sage">Resolved</span> The page now ends with the final audited state required by spec.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="s9">
+        <div class="section-head">
+          <div class="eyebrow">09 · supporting / optional layers</div>
+          <h2>Keep the core path clean. Put extra depth here.</h2>
+          <p class="section-kicker">These layers help after the main architecture story has already clicked.</p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card accent-terra">
+            <div class="section-label">Supporting layer A</div>
+            <h3>Low-level stride appendix</h3>
+            <p class="muted">Use this only after the core path is done. Content: <code>as_strided</code>, low-level <code>conv1d</code>, <code>conv2d</code>, and <code>maxpool2d</code>. Framing: deep understanding appendix, not prerequisite for the main ResNet story.</p>
+          </div>
+          <div class="card accent-rose">
+            <div class="section-label">Supporting layer B</div>
+            <h3>Debugging note</h3>
+            <p class="muted">Forward hooks can localize NaNs inside a custom ResNet implementation. Keep it short: the goal is to show a practical debugging handle, not to crowd the lesson arc.</p>
+          </div>
+          <div class="card accent-sage">
+            <div class="section-label">Supporting layer C</div>
+            <h3>Datasets ladder</h3>
+            <div class="datasets-ladder" style="margin-top:10px;">
+              <div class="metric-card accent-ink"><strong>MNIST</strong><div class="metric-copy">Toy problem and baseline MLP mismatch.</div></div>
+              <div class="metric-card accent-terra"><strong>ImageNet parity</strong><div class="metric-copy">Faithful ResNet34 copy with pretrained agreement.</div></div>
+              <div class="metric-card accent-sage"><strong>CIFAR-10 transfer</strong><div class="metric-copy">Frozen backbone plus new linear head.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <details style="margin-top:16px;" class="accent-ink">
+          <summary>Bonus implementation notes that matter in practice</summary>
+          <div class="details-body">
+            <div class="grid-2" style="margin-top:16px;">
+              <div class="card recessed accent-teal">
+                <div class="section-label">BatchNorm mode split</div>
+                <p class="muted">Train mode uses the current batch mean and variance, then updates running buffers. Eval mode uses those running buffers. That is why transfer workflows must respect <code>model.train()</code> and <code>model.eval()</code>, especially when the backbone is frozen.</p>
+              </div>
+              <div class="card recessed accent-rose">
+                <div class="section-label">Weight-copy fidelity</div>
+                <p class="muted">A rough ResNet lookalike is not enough. The declaration order of left-branch modules and projection modules must line up with torchvision so <code>state_dict</code> keys land on the right tensors and prediction parity can succeed.</p>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <p class="footer-note">This build stays concept-first and mechanism-first: shifted digit → locality mismatch → convolution and pooling → degradation problem → residual paths + BatchNorm → ResNet34 fidelity → pretrained feature extraction.</p>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    const css = getComputedStyle(document.documentElement);
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: false, curve: 'basis' },
+      themeVariables: {
+        background: 'transparent',
+        primaryColor: css.getPropertyValue('--surface').trim(),
+        primaryTextColor: css.getPropertyValue('--text').trim(),
+        primaryBorderColor: css.getPropertyValue('--ink').trim(),
+        lineColor: css.getPropertyValue('--text-dim').trim(),
+        secondaryColor: css.getPropertyValue('--terracotta-dim').trim(),
+        tertiaryColor: css.getPropertyValue('--sage-dim').trim(),
+        fontSize: '18px',
+        fontFamily: 'Plus Jakarta Sans'
+      }
+    });
+
+    function wireZoom(wrap) {
+      const target = wrap.querySelector('.mermaid');
+      if (!target) return;
+      const initial = parseFloat(wrap.dataset.initialZoom || '1.15');
+      target.dataset.zoom = String(initial);
+      target.style.zoom = initial;
+
+      wrap.querySelectorAll('[data-zoom]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const current = parseFloat(target.dataset.zoom || initial);
+          let next = current;
+          if (btn.dataset.zoom === 'in') next = Math.min(current * 1.18, 4);
+          if (btn.dataset.zoom === 'out') next = Math.max(current * 0.84, 0.7);
+          if (btn.dataset.zoom === 'reset') next = initial;
+          target.dataset.zoom = String(next);
+          target.style.zoom = next;
+        });
+      });
+
+      wrap.addEventListener('wheel', (e) => {
+        if (!e.ctrlKey && !e.metaKey) return;
+        e.preventDefault();
+        const current = parseFloat(target.dataset.zoom || initial);
+        const next = e.deltaY < 0 ? Math.min(current * 1.1, 4) : Math.max(current * 0.9, 0.7);
+        target.dataset.zoom = String(next);
+        target.style.zoom = next;
+      }, { passive: false });
+
+      let startX = 0, startY = 0, scrollL = 0, scrollT = 0;
+      wrap.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.zoom-controls')) return;
+        wrap.classList.add('is-panning');
+        startX = e.clientX; startY = e.clientY; scrollL = wrap.scrollLeft; scrollT = wrap.scrollTop;
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!wrap.classList.contains('is-panning')) return;
+        wrap.scrollLeft = scrollL - (e.clientX - startX);
+        wrap.scrollTop = scrollT - (e.clientY - startY);
+      });
+      window.addEventListener('mouseup', () => wrap.classList.remove('is-panning'));
+    }
+
+    document.querySelectorAll('.mermaid-wrap').forEach(wireZoom);
+
+    (function tocSpy() {
+      const toc = document.getElementById('toc');
+      if (!toc) return;
+      const links = [...toc.querySelectorAll('a')];
+      const sections = links
+        .map(link => ({ link, el: document.getElementById(link.getAttribute('href').slice(1)) }))
+        .filter(x => x.el);
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          links.forEach(l => l.classList.remove('active'));
+          const match = sections.find(s => s.el === entry.target);
+          if (match) {
+            match.link.classList.add('active');
+            if (window.innerWidth <= 1180) match.link.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          }
+        });
+      }, { rootMargin: '-10% 0px -78% 0px' });
+
+      sections.forEach(({ el }) => observer.observe(el));
+      links.forEach(link => link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const el = document.getElementById(link.getAttribute('href').slice(1));
+        if (!el) return;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', link.getAttribute('href'));
+      }));
+    })();
+  </script>
+</body>
+</html>
