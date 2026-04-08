@@ -27,6 +27,9 @@ The goal is simple:
 - **CNNs & ResNets**  
   `site/cnns-resnets/index.html`
 
+- **Linear Probes**  
+  `site/linear-probes/index.html`
+
 ## Design standard
 
 Each explainer should help a student answer these before opening the notebook:
@@ -51,7 +54,9 @@ arena-explainers/
     ├── index.html
     ├── mech-interp/
     │   └── index.html
-    └── cnns-resnets/
+    ├── cnns-resnets/
+    │   └── index.html
+    └── linear-probes/
         └── index.html
 ```
 
