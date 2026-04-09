@@ -221,11 +221,11 @@
       margin: 16px 0 22px;
     }
 
-    .hero-grid, .grid-2, .grid-3, .stack, .board-grid, .study-grid, .tool-grid, .evidence-grid, .check-grid, .reverse-step-grid {
+    .hero-grid, .grid-2, .grid-3, .stack, .board-grid, .study-grid, .tool-grid, .evidence-grid, .check-grid, .reverse-step-grid, .hero-steps, .hero-foot {
       display: grid;
       gap: 16px;
     }
-    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; }
+    .hero-grid { grid-template-columns: 1.08fr 0.92fr; align-items: start; gap: 16px; }
     .grid-2, .study-grid, .evidence-grid, .check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-3, .tool-grid, .reverse-step-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .board-grid { grid-template-columns: 1.12fr 0.88fr; }
@@ -281,6 +281,27 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
       margin-top: 12px;
+    }
+    .hero-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 4px;
+    }
+    .hero-step {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+    }
+    .hero-step strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+    .hero-foot {
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: start;
+      margin-top: 4px;
     }
     .metric {
       border: 1px solid var(--border);
@@ -710,7 +731,7 @@
         border-bottom-color: var(--accent);
         background: var(--surface);
       }
-      .hero-grid, .board-grid, .grid-2, .grid-3, .study-grid, .tool-grid, .evidence-grid, .check-grid, .workspace-strip, .mechanism-grid, .path-board, .metric-strip, .reverse-step-grid, .reverse-intro { grid-template-columns: 1fr; }
+      .hero-grid, .board-grid, .grid-2, .grid-3, .study-grid, .tool-grid, .evidence-grid, .check-grid, .workspace-strip, .mechanism-grid, .path-board, .metric-strip, .reverse-step-grid, .reverse-intro, .hero-steps, .hero-foot { grid-template-columns: 1fr; }
       .path-arrow { min-height: 56px; }
       .token-tape, .source-lane { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .pattern-grid, .axis-row { gap: 4px; }
@@ -745,7 +766,7 @@
 
     <main class="main">
       <section class="hero fade-up">
-        <div class="eyebrow">ARENA week 4 • slide-grounded rebuild</div>
+        <div class="eyebrow">ARENA week 4 • Intro to Mech Interp</div>
         <h1>See the circuit, then prove it.</h1>
         <p class="subtitle">Week 4 teaches two things at once. First, induction heads implement a real algorithm. Second, TransformerLens gives you direct access to the activations, weights, hooks, and attention patterns you need to inspect that algorithm instead of guessing from outputs.</p>
         <div class="hero-grid">
@@ -758,20 +779,23 @@
             </div>
             <div class="ve-card ve-card--hero ve-card--blue">
               <div class="section-label">Why this week matters</div>
-              <p>Mechanistic interpretability gets stronger when you can move up the evidence ladder. TransformerLens makes that practical. You can cache activations, hook into the forward pass, inspect the attention heads, and multiply through weights to test a concrete story about how the model solved the task.</p>
+              <p>Mechanistic interpretability gets stronger when you can move up the evidence ladder. TransformerLens makes that practical. The page is meant to make the notebook legible before you touch the code.</p>
             </div>
-            <div class="metric-strip">
-              <div class="metric">
-                <strong>Activations</strong>
-                <span class="muted">Read what each component wrote.</span>
+            <div class="hero-steps">
+              <div class="hero-step">
+                <div class="section-label">Step 1</div>
+                <strong>Route</strong>
+                <p class="muted">A previous-token head writes a compact “prev = A” feature into the stream.</p>
               </div>
-              <div class="metric">
-                <strong>Hooks</strong>
-                <span class="muted">Observe or intervene mid-pass.</span>
+              <div class="hero-step">
+                <div class="section-label">Step 2</div>
+                <strong>Match</strong>
+                <p class="muted">An induction head uses that feature to find the earlier position whose predecessor was <code>A</code>.</p>
               </div>
-              <div class="metric">
-                <strong>Weights</strong>
-                <span class="muted">Reverse engineer the path itself.</span>
+              <div class="hero-step">
+                <div class="section-label">Step 3</div>
+                <strong>Copy</strong>
+                <p class="muted">OV carries the payload from that source, so the next-token logit points toward <code>B</code>.</p>
               </div>
             </div>
           </div>
@@ -983,7 +1007,7 @@ flowchart TD
         <div id="s6" class="sec-head">
           <div class="section-label">06 • attention-pattern signatures</div>
           <h2>Patterns teach you where to look before you start intervening.</h2>
-          <p class="section-kicker">Pattern reading gives clue-level evidence. It points. It doesn’t prove.</p>
+          <p class="section-kicker">Pattern reading gives you the first clue. Ablation and weight work decide the claim.</p>
         </div>
         <div class="study-grid">
           <div class="pattern-board">
@@ -1044,7 +1068,7 @@ flowchart TD
               </div>
               <div class="axis-row"><span>d1</span><span>d2</span><span>d3</span><span>d4</span><span>d5</span><span>d6</span><span>d7</span><span>d8</span><span>d9</span><span>d10</span></div>
             </div>
-            <div class="pattern-note">In the real notebook, this is the signature to stare at first. Then you ask whether attribution and ablation agree that the same head matters.</div>
+            <div class="pattern-note">Start here in the notebook. Then check whether attribution and ablation pick out the same head.</div>
           </div>
         </div>
         <div class="grid-2">
@@ -1063,7 +1087,7 @@ flowchart TD
         <div id="s7" class="sec-head">
           <div class="section-label">07 • hooks, cache, and attribution</div>
           <h2>Start with cache, then use hooks to ask what matters.</h2>
-          <p class="section-kicker">This is the practical investigation loop the notebook wants you to learn.</p>
+          <p class="section-kicker">Use this loop in the notebook: cache, hook, measure.</p>
         </div>
         <div class="tool-grid">
           <div class="ve-card ve-card--blue">
@@ -1208,7 +1232,7 @@ flowchart TD
             </div>
             <div class="ve-card ve-card--danger">
               <h3>Misconception repair</h3>
-              <p>Induction is not “the head finds the same token and copies the next token” in one indivisible move. The whole point is the split between routing a useful feature and then using that feature to guide source selection and payload transfer.</p>
+              <p>Keep the split clear. One layer routes the useful feature. A later layer uses that feature to choose the source and carry the payload.</p>
             </div>
           </div>
         </div>
@@ -1337,7 +1361,7 @@ flowchart TD
         <div id="s10" class="sec-head">
           <div class="section-label">10 • short mastery check</div>
           <h2>Use these to see if the lesson compressed.</h2>
-          <p class="section-kicker">Five checks, each aimed at a different part of the week 4 arc.</p>
+          <p class="section-kicker">Five checks, each hitting a different part of the mechanism.</p>
         </div>
         <div class="check-grid">
           <div class="ve-card ve-card--gold">
@@ -1378,7 +1402,7 @@ flowchart TD
           </div>
         </details>
 
-        <p class="footer-note">This page is a pre-code companion. The notebook is where you run the probes. The goal here is to make every probe feel motivated before you touch the code.</p>
+        <p class="footer-note">Use this page to get the circuit straight, then open the notebook and run the probes.</p>
       </section>
     </main>
   </div>
