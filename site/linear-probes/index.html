@@ -825,10 +825,10 @@
           <div class="hero-copy">
             <div class="eyebrow">ARENA chapter 1.3.1 · transformer interpretability</div>
             <h1>Linear probes get interesting when a readable direction also moves the answer</h1>
-            <p class="subtitle">The chapter starts with a simple readout question: can one hidden state, the model’s internal vector at one token and layer, separate true from false? Then it asks the stronger question: if you push on that direction, does the answer change too?</p>
+            <p class="subtitle">The chapter starts with a simple readout question: can one hidden state, the model’s internal vector at one token and layer, separate true from false? Then it asks the stronger question: if you nudge the truth-related direction at that same spot, does the answer change too?</p>
             <div class="hero-summary">
-              <div class="summary-line"><strong>Core contrast.</strong> A feature can be easy to read with a linear probe, a simple linear classifier on activations, without being clearly used by the model.</div>
-              <div class="summary-line"><strong>Core mechanism.</strong> Choose the right token, find the direction, patch that hidden-state vector, then watch <code>P(TRUE) - P(FALSE)</code> move.</div>
+              <div class="summary-line"><strong>Core contrast.</strong> A feature can be easy to read with a linear probe, a simple linear classifier on activations, without being clearly used by the model while it answers.</div>
+              <div class="summary-line"><strong>Core mechanism.</strong> Choose the right token, find the line that points more toward “true” than “false,” patch that hidden-state vector, then watch <code>P(TRUE) - P(FALSE)</code> move.</div>
             </div>
           </div>
 
@@ -859,7 +859,7 @@
                     <span class="tok hit">.</span>
                   </div>
                 </div>
-                <p class="muted">The final period is the readout site because the model has already integrated the whole claim there, so the hidden state at that token is the compact summary we want to read.</p>
+                <p class="muted">The final period is the readout site because by the end of the sentence the model has already combined the whole claim there, so the hidden state at that token is the compact summary we want to read.</p>
               </div>
 
               <div class="board-panel projection-panel">
@@ -867,7 +867,7 @@
                 <div class="cloud"><div class="axis"></div></div>
                 <div class="axis-row">
                   <div class="axis-note">simple projection first</div>
-                  <div class="axis-note">find a truth-related line</div>
+                  <div class="axis-note">find the line from “more false” to “more true”</div>
                   <div class="axis-note">only then name PCA, MM, and LR</div>
                 </div>
               </div>
@@ -882,7 +882,7 @@
               <div class="board-step">
                 <div class="mini-label">Patch</div>
                 <strong>Add or subtract the direction</strong>
-                <p class="muted">Edit the few-shot prompt at the same hidden-state site instead of stopping at classification. This edit is usually called patching or activation patching.</p>
+                <p class="muted">Add or subtract that truth-related line at the same hidden-state site instead of stopping at classification. This edit is usually called patching or activation patching.</p>
               </div>
               <div class="board-step">
                 <div class="mini-label">Judge</div>
@@ -978,7 +978,7 @@
               </div>
               <div class="legend-card">
                 <div class="mini-label">Geometry</div>
-                <p class="muted">A visible split says the feature is present enough to read out linearly, meaning with one straight-line separator rather than a complex nonlinear model.</p>
+                <p class="muted">A visible split says the feature is present enough to read out with one straight-line rule, rather than needing a more complicated nonlinear model.</p>
               </div>
               <div class="legend-card">
                 <div class="mini-label">Stronger claim</div>
@@ -1013,7 +1013,7 @@
                   </div>
                   <div class="loop-item">
                     <div class="mini-label">3 · name the line</div>
-                    <p class="muted">MM asks for the average true-minus-false direction. LR learns a separating direction with logistic regression. The chapter cares about how believable those directions are, not only how accurate.</p>
+                    <p class="muted">MM asks for the average true-minus-false direction. LR learns a separating direction with logistic regression. The chapter cares about whether those lines tell a believable mechanism story, not only whether they score well on labels.</p>
                   </div>
                 </div>
                 <div class="cloud"><div class="axis"></div></div>
@@ -1026,13 +1026,13 @@
                 <div class="patch-band">
                   <div class="mini-label">patch window</div>
                   <div class="layer-line"></div>
-                  <p class="muted">The intervention edits the truth direction in the few-shot prompt at the intended layers and positions. This is what activation patching means here.</p>
+                  <p class="muted">The intervention edits that truth-related direction in the few-shot prompt at the intended layers and positions. This is what activation patching means here.</p>
                 </div>
                 <div class="answer-shift">
                   <div class="mini-label">answer shift</div>
                   <div class="meter-bar"><div class="meter-fill" style="width: 80%;"></div></div>
                   <div class="meter-bar"><div class="meter-fill" style="width: 26%; background: linear-gradient(90deg, var(--rose), var(--apricot));"></div></div>
-                  <p class="muted">If <code>P(TRUE)</code> rises when you add the truth direction and falls when you subtract it, the direction looks more causally implicated, meaning the model seems to rely on it while answering.</p>
+                  <p class="muted">If <code>P(TRUE)</code> rises when you add the truth direction and falls when you subtract it, that is stronger evidence that the model is relying on this direction while answering, not that the probe merely found a handy correlation.</p>
                 </div>
               </div>
             </div>
@@ -1079,11 +1079,11 @@
               </div>
               <div class="evidence-step" data-step="3">
                 <strong>Check whether the direction transfers</strong>
-                <p class="muted">A line that generalizes across curated truth datasets looks more like a truth feature and less like a dataset quirk.</p>
+                <p class="muted">If the same line still works on a new truth dataset, it looks more like a real truth feature and less like a trick that only fit one dataset.</p>
               </div>
               <div class="evidence-step" data-step="4">
                 <strong>Patch the direction and watch the answer shift</strong>
-                <p class="muted">Intervention is the upgrade from observational geometry to a stronger claim about use. Patching asks what happens when you directly edit the activation, not just read it.</p>
+                <p class="muted">Intervention is the step from “we can see it” to “the model may be using it.” Patching asks what happens when you directly edit the activation, not just read it.</p>
               </div>
             </div>
           </div>
@@ -1128,7 +1128,7 @@
             <div class="surface soft">
               <div class="section-label">How to read the section</div>
               <strong>Think “geometry → location → transfer → intervention.”</strong>
-              <p class="muted" style="margin-top: 8px;">If the notebook feels like separate demos, this sequence is the thread that stitches them back into one claim.</p>
+              <p class="muted" style="margin-top: 8px;">If the notebook starts to feel like separate demos, this sequence is the thread that stitches them back into one claim.</p>
             </div>
           </div>
         </div>
@@ -1194,29 +1194,29 @@
         <div class="section-head">
           <div class="eyebrow">05 · same recipe, new targets</div>
           <h2>Later sections mostly change where the property lives, not the overall probing recipe</h2>
-          <p class="section-kicker">Truth, deception, and high-stakes detection all ask for a readable direction. What changes is whether the right surface is one last token, assistant-only response tokens, or a pooled whole-request view.</p>
+          <p class="section-kicker">Truth, deception, and high-stakes detection all use the same basic recipe: choose the right representation, read a direction, then test whether it generalizes. What changes is where that representation lives, one last token, assistant-only response tokens, or a pooled whole-request view.</p>
         </div>
 
         <div class="signal-strip" style="margin-bottom: 14px;">
           <div class="signal-card">
             <div class="mini-label">target</div>
             <strong>Truth</strong>
-            <p class="muted">A property of the statement itself, so the readout site is the sentence-ending verdict token.</p>
+            <p class="muted">A property of the statement itself, so the cleanest readout site is the sentence-ending verdict token.</p>
           </div>
           <div class="signal-card">
             <div class="mini-label">target</div>
             <strong>Deception</strong>
-            <p class="muted">A property of the model’s stance while answering, so the assistant span matters more than the user prompt.</p>
+            <p class="muted">A property of the model’s stance while answering, so the assistant span matters more than the user prompt alone.</p>
           </div>
           <div class="signal-card">
             <div class="mini-label">target</div>
             <strong>High-stakes</strong>
-            <p class="muted">A property of the user request, so the signal can be distributed across the prompt instead of one last token.</p>
+            <p class="muted">A property of the user request, so the signal can be spread across the prompt instead of sitting in one last token.</p>
           </div>
           <div class="signal-card">
             <div class="mini-label">big lesson</div>
             <strong>Pooling is a hypothesis</strong>
-            <p class="muted">Last-token, assistant-span, and attention pooling are different bets about where the property lives.</p>
+            <p class="muted">Last-token, assistant-span, and attention pooling are different bets about where the property actually lives in the activations.</p>
           </div>
         </div>
 
@@ -1234,14 +1234,14 @@
               </div>
               <div class="extension-card risk">
                 <strong>High-stakes requests</strong>
-                <p class="muted">Pool across the full request because the risk signal can be distributed across the prompt. This is where an attention probe can help, meaning a probe that learns which tokens deserve more weight.</p>
+                <p class="muted">Pool across the full request because the risk signal can be distributed across the prompt. This is where an attention probe can help, meaning a probe that learns which tokens should count more heavily.</p>
               </div>
             </div>
           </div>
 
           <div class="surface soft">
             <div class="section-label">Jargon in context</div>
-            <strong>AUROC is just ranking quality across many thresholds.</strong>
+            <strong>AUROC is just “how well does the detector rank risky examples above safe ones?” across many thresholds.</strong>
             <p class="muted" style="margin-top: 8px;">The chapter uses this in the high-stakes section because a detector should rank riskier requests above safer ones instead of only looking good at one arbitrary cutoff. AUROC stands for area under the ROC curve.</p>
             <p class="muted" style="margin-top: 8px;">An attention probe is the matching readout idea: instead of treating every token equally, it learns where to look in the request before making the prediction.</p>
           </div>
@@ -1269,7 +1269,7 @@
               </div>
               <div class="flow-mini">
                 <strong>Transfer table</strong>
-                <p class="muted">Ask whether the direction looks like a general truth feature or a narrow dataset trick.</p>
+                <p class="muted">Ask whether the direction still works like a general truth feature, or whether it only fit one narrow dataset.</p>
               </div>
             </div>
           </div>
@@ -1328,7 +1328,7 @@
           <div class="surface tint-plum">
             <div class="section-label">Two-minute explanation</div>
             <strong>Read the right hidden state, extract the truth-related direction, localize where it is strongest, and patch it back into the model to see whether the answer shifts.</strong>
-            <p class="muted" style="margin-top: 10px;">That is the jump from readable feature to causally used feature, and it is the real attractor of the chapter. A hidden state is just the model’s internal vector, and patching asks what happens when you edit it.</p>
+            <p class="muted" style="margin-top: 10px;">That is the jump from a readable feature to a more plausibly used feature, and it is the real attractor of the chapter. A hidden state is just the model’s internal vector, and patching asks what happens when you edit it.</p>
           </div>
 
           <div class="surface soft">
@@ -1336,7 +1336,7 @@
             <div class="legend-stack">
               <div class="recap-card">
                 <strong>Main idea</strong>
-                <p class="muted">A probe is strongest when geometry, transfer, and intervention line up around one chosen readout site, meaning one carefully defined token or span inside the model.</p>
+                <p class="muted">A probe is strongest when geometry, transfer, and intervention all line up around one chosen readout site, meaning one carefully defined token or span inside the model.</p>
               </div>
               <div class="recap-card">
                 <strong>Wrong intuition</strong>
