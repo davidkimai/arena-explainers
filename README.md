@@ -22,13 +22,19 @@ The goal is simple:
 ## Current explainers
 
 - **Intro to Mechanistic Interpretability**  
-  `site/mech-interp/index.html`
+  Local: `site/mech-interp/index.html`  
+  Live: https://davidkimai.github.io/arena-explainers/mech-interp/
 
 - **CNNs & ResNets**  
-  `site/cnns-resnets/index.html`
+  Local: `site/cnns-resnets/index.html`  
+  Live: https://davidkimai.github.io/arena-explainers/cnns-resnets/
 
 - **Linear Probes**  
-  `site/linear-probes/index.html`
+  Local: `site/linear-probes/index.html`  
+  Live: https://davidkimai.github.io/arena-explainers/linear-probes/
+
+- **Landing page**  
+  Live: https://davidkimai.github.io/arena-explainers/
 
 ## Design standard
 
