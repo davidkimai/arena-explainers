@@ -823,12 +823,13 @@
       <section class="hero section" id="s0">
         <div class="hero-grid">
           <div class="hero-copy">
-            <div class="eyebrow">ARENA chapter 1.3.1 · transformer interpretability</div>
-            <h1>Linear probes get interesting when a readable direction also moves the answer</h1>
-            <p class="subtitle">The chapter starts with a simple readout question: can one hidden state, the model’s internal vector at one token and layer, separate true from false? Then it asks the stronger question: if you nudge the truth-related direction at that same spot, does the answer change too?</p>
+            <div class="eyebrow">ARENA chapter 1.3.1 · Linear Probes</div>
+            <h1>Linear probes are about finding a concept in one internal state, then testing whether that concept helps drive the answer</h1>
+            <p class="subtitle">This chapter is not mainly about probe jargon. It is about a concrete interpretability question: at one chosen token and layer, can the model’s internal state already separate true from false, and if you push that same internal direction, does the model’s answer become more true-looking or less true-looking?</p>
             <div class="hero-summary">
-              <div class="summary-line"><strong>Core contrast.</strong> A feature can be easy to read with a linear probe, a simple linear classifier on activations, without being clearly used by the model while it answers.</div>
-              <div class="summary-line"><strong>Core mechanism.</strong> Choose the right token, find the line that points more toward “true” than “false,” patch that hidden-state vector, then watch <code>P(TRUE) - P(FALSE)</code> move.</div>
+              <div class="summary-line"><strong>What the chapter is about.</strong> A linear probe is just a straight-line readout from one hidden state, meaning one internal activation vector at one token position and layer.</div>
+              <div class="summary-line"><strong>Why that is not enough.</strong> A feature can be easy to read without being the feature the model is actually using while it answers.</div>
+              <div class="summary-line"><strong>What makes the story stronger.</strong> Find the line from “more false” to “more true,” add or subtract that line at the same site, then check whether the model shifts probability from false answers toward true ones, or back again.</div>
             </div>
           </div>
 
@@ -866,9 +867,9 @@
                 <strong>Then ask whether truth already looks geometric</strong>
                 <div class="cloud"><div class="axis"></div></div>
                 <div class="axis-row">
-                  <div class="axis-note">simple projection first</div>
-                  <div class="axis-note">find the line from “more false” to “more true”</div>
-                  <div class="axis-note">only then name PCA, MM, and LR</div>
+                  <div class="axis-note">first ask if true and false naturally pull apart</div>
+                  <div class="axis-note">then find the line from “more false” to “more true”</div>
+                  <div class="axis-note">only after that attach the method names</div>
                 </div>
               </div>
             </div>
@@ -882,7 +883,7 @@
               <div class="board-step">
                 <div class="mini-label">Patch</div>
                 <strong>Add or subtract the direction</strong>
-                <p class="muted">Add or subtract that truth-related line at the same hidden-state site instead of stopping at classification. This edit is usually called patching or activation patching.</p>
+                <p class="muted">Add or subtract that truth-related line at the same hidden-state site instead of stopping at classification. This kind of direct edit is usually called activation patching.</p>
               </div>
               <div class="board-step">
                 <div class="mini-label">Judge</div>
@@ -900,8 +901,8 @@
       <section class="section" id="s1">
         <div class="section-head">
           <div class="eyebrow">01 · simplest chapter companion</div>
-          <h2>One toy problem teaches where the probe lives before it teaches any method name</h2>
-          <p class="section-kicker">The page only needs one recurring example if that example keeps token role, truth label, and intervention site visually tied together, while introducing the vocabulary in plain English the first time it appears.</p>
+          <h2>Start with one tiny truth task, so the rest of the chapter feels like one repeated question</h2>
+          <p class="section-kicker">The fastest way to make the notebook intuitive is to keep one recurring example on screen and attach every later term to that same example: which token are we reading, what internal state lives there, what line separates true from false, and what happens if we push on it?</p>
         </div>
 
         <div class="story-grid">
@@ -954,23 +955,23 @@
 
             <div class="story-board-bottom">
               <div class="mini-card">
-                <strong>Simple two-dimensional projection</strong>
-                <p class="muted">Later the notebook names this principal component analysis, or <b>PCA</b>, an unsupervised way to compress many dimensions into a few main axes. For now, just ask whether true and false states visibly pull apart.</p>
+                <strong>First picture: a simple flattening of the cloud</strong>
+                <p class="muted">Before the chapter says <b>PCA</b>, read it as: take the huge activation vector and flatten it into a simple view so you can ask whether true and false examples already drift apart.</p>
               </div>
               <div class="mini-card">
-                <strong>Average true minus average false direction</strong>
-                <p class="muted">Later shortened to difference-of-means, or <b>MM</b>. It is the straight line from the average false activation to the average true activation.</p>
+                <strong>One obvious line through the cloud</strong>
+                <p class="muted">Before the chapter says <b>MM</b> for difference-of-means, read it as: draw the straight line from the average false state to the average true state.</p>
               </div>
               <div class="mini-card">
-                <strong>Trained separating direction</strong>
-                <p class="muted">Later shortened to logistic regression, or <b>LR</b>. It is the line learned by a linear classifier trained to separate the labels.</p>
+                <strong>One learned line that best separates labels</strong>
+                <p class="muted">Before the chapter says <b>LR</b> for logistic regression, read it as: train the simplest straight-line classifier you can, then see which direction it chooses.</p>
               </div>
             </div>
           </div>
 
           <div class="surface soft">
             <div class="section-label">What should click quickly</div>
-            <strong>The probe is not reading “truth in the model.” It is reading one chosen hidden state at one chosen token position, then asking what a simple linear rule can recover from that one site.</strong>
+            <strong>The probe is not reading “truth in the whole model.” It is reading one chosen hidden state at one chosen token position, then asking what a simple straight-line rule can recover from that one site.</strong>
             <div class="legend-stack" style="margin-top: 14px;">
               <div class="legend-card">
                 <div class="mini-label">Readout site</div>
@@ -1009,11 +1010,11 @@
                   </div>
                   <div class="loop-item">
                     <div class="mini-label">2 · reveal split</div>
-                    <p class="muted">A simple projection, like PCA, shows that true and false activations separate instead of fully overlapping.</p>
+                    <p class="muted">A simple flattened view of the activation cloud, often later named PCA, shows that true and false activations separate instead of fully overlapping.</p>
                   </div>
                   <div class="loop-item">
                     <div class="mini-label">3 · name the line</div>
-                    <p class="muted">MM asks for the average true-minus-false direction. LR learns a separating direction with logistic regression. The chapter cares about whether those lines tell a believable mechanism story, not only whether they score well on labels.</p>
+                    <p class="muted">One line comes from class averages, later called MM. Another comes from a trained linear classifier, later called LR. The chapter cares about whether those lines tell a believable mechanism story, not only whether they score well on labels.</p>
                   </div>
                 </div>
                 <div class="cloud"><div class="axis"></div></div>
@@ -1071,7 +1072,7 @@
             <div class="evidence-ladder">
               <div class="evidence-step" data-step="1">
                 <strong>See a truth split in a simple projection</strong>
-                <p class="muted">The notebook’s first striking picture is already geometric: true and false states separate before the strongest causal language arrives. PCA is the usual first view here.</p>
+                <p class="muted">The notebook’s first striking picture is already geometric: true and false states separate before the strongest causal language arrives. The usual first view is PCA, meaning a simple way to flatten a huge vector cloud into a small picture.</p>
               </div>
               <div class="evidence-step" data-step="2">
                 <strong>Localize where the signal is strongest</strong>
@@ -1102,7 +1103,7 @@
                   <tbody>
                     <tr>
                       <td><strong>Truth is readable in the chosen final-token state.</strong></td>
-                      <td>True and false examples pull apart in a simple projection, often PCA, before the more technical probe comparison starts.</td>
+                      <td>True and false examples pull apart in a simple flattened view, often PCA, before the more technical probe comparison starts.</td>
                       <td>The feature is present in the activations, not invented by the probe.</td>
                     </tr>
                     <tr>
