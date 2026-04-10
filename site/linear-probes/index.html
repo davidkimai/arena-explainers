@@ -824,17 +824,17 @@
         <div class="hero-grid">
           <div class="hero-copy">
             <div class="eyebrow">ARENA chapter 1.3.1 · Linear Probes</div>
-            <h1>Linear probes are about finding a concept in one internal state, then testing whether that concept helps drive the answer</h1>
-            <p class="subtitle">This chapter is not mainly about probe jargon. It is about a concrete interpretability question: at one chosen token and layer, can the model’s internal state already separate true from false, and if you push that same internal direction, does the model’s answer become more true-looking or less true-looking?</p>
+            <h1>Linear probes ask whether one internal state already contains a clean, usable concept</h1>
+            <p class="subtitle">The chapter starts with a simple question and then tightens it. First: at one chosen token and layer, does the model’s internal state already separate true from false? Then: if you push on that same direction, does the answer move with it?</p>
             <div class="hero-summary">
-              <div class="summary-line"><strong>What the chapter is about.</strong> A linear probe is just a straight-line readout from one hidden state, meaning one internal activation vector at one token position and layer.</div>
-              <div class="summary-line"><strong>Why that is not enough.</strong> A feature can be easy to read without being the feature the model is actually using while it answers.</div>
-              <div class="summary-line"><strong>What makes the story stronger.</strong> Find the line from “more false” to “more true,” add or subtract that line at the same site, then check whether the model shifts probability from false answers toward true ones, or back again.</div>
+              <div class="summary-line"><strong>What the probe is reading.</strong> A linear probe is a straight-line readout from one hidden state, meaning one internal activation vector at one token position and layer.</div>
+              <div class="summary-line"><strong>What can fool you.</strong> A probe can read a pattern that travels with truth, even if that pattern is not the internal feature actually steering the answer.</div>
+              <div class="summary-line"><strong>What stronger evidence looks like.</strong> Find the truth-related direction, add or subtract it at the same site, then check whether the model becomes more likely to answer true or more likely to answer false.</div>
             </div>
           </div>
 
           <div class="hero-board">
-            <div class="section-label">First-screen board</div>
+            <div class="section-label">Core question on one screen</div>
             <div class="hero-board-top">
               <div class="board-panel statement-pair">
                 <strong>Start with the same sentence role in both examples</strong>
@@ -901,13 +901,13 @@
       <section class="section" id="s1">
         <div class="section-head">
           <div class="eyebrow">01 · simplest chapter companion</div>
-          <h2>Start with one tiny truth task, so the rest of the chapter feels like one repeated question</h2>
-          <p class="section-kicker">The fastest way to make the notebook intuitive is to keep one recurring example on screen and attach every later term to that same example: which token are we reading, what internal state lives there, what line separates true from false, and what happens if we push on it?</p>
+          <h2>What is the chapter actually measuring, and where is it measuring it?</h2>
+          <p class="section-kicker">Keep one recurring example on screen and tie every later term back to it: which token are we reading, what hidden state lives there, what line separates true from false, and what happens if we push on that line?</p>
         </div>
 
         <div class="story-grid">
           <div class="story-board">
-            <div class="section-label">Persistent teaching surface</div>
+            <div class="section-label">One example to carry through the chapter</div>
             <div class="story-board-top">
               <div class="token-stage">
                 <strong>Keep the sentence short and keep the readout token fixed</strong>
@@ -955,22 +955,22 @@
 
             <div class="story-board-bottom">
               <div class="mini-card">
-                <strong>First picture: a simple flattening of the cloud</strong>
-                <p class="muted">Before the chapter says <b>PCA</b>, read it as: take the huge activation vector and flatten it into a simple view so you can ask whether true and false examples already drift apart.</p>
+                <strong>Principal component analysis (PCA)</strong>
+                <p class="muted">PCA gives you a simple low-dimensional view of a huge activation cloud, so you can see whether true and false examples already pull apart.</p>
               </div>
               <div class="mini-card">
-                <strong>One obvious line through the cloud</strong>
-                <p class="muted">Before the chapter says <b>MM</b> for difference-of-means, read it as: draw the straight line from the average false state to the average true state.</p>
+                <strong>Difference-of-means (MM)</strong>
+                <p class="muted">This is the straight line from the average false state to the average true state. It is the most literal geometric summary of the split.</p>
               </div>
               <div class="mini-card">
-                <strong>One learned line that best separates labels</strong>
-                <p class="muted">Before the chapter says <b>LR</b> for logistic regression, read it as: train the simplest straight-line classifier you can, then see which direction it chooses.</p>
+                <strong>Logistic regression (LR)</strong>
+                <p class="muted">This learns a straight-line classifier that separates true from false as well as it can. It often scores well, but that alone doesn't make it the most interpretable direction.</p>
               </div>
             </div>
           </div>
 
           <div class="surface soft">
-            <div class="section-label">What should click quickly</div>
+            <div class="section-label">What to notice first</div>
             <strong>The probe is not reading “truth in the whole model.” It is reading one chosen hidden state at one chosen token position, then asking what a simple straight-line rule can recover from that one site.</strong>
             <div class="legend-stack" style="margin-top: 14px;">
               <div class="legend-card">
@@ -993,13 +993,13 @@
       <section class="section" id="s2">
         <div class="section-head">
           <div class="eyebrow">02 · dominant mechanism board</div>
-          <h2>The chapter’s real board is one causal loop, not a collection of mini-cards</h2>
-          <p class="section-kicker">From the chosen hidden state to the patching result, the point is to keep one continuous story on screen, so the intervention feels like a test of the same direction you just extracted.</p>
+          <h2>How does a readable direction turn into a stronger mechanism claim?</h2>
+          <p class="section-kicker">Follow one continuous chain: choose the hidden state, find the truth-related direction inside it, then push on that same direction and see whether the answer moves.</p>
         </div>
 
         <div class="board-shell">
           <div class="board">
-            <div class="section-label">From hidden state to causal test</div>
+            <div class="section-label">From readout to intervention</div>
             <div class="truth-flow">
               <div class="loop-stage">
                 <strong>Find the direction inside the activation geometry</strong>
@@ -1010,11 +1010,11 @@
                   </div>
                   <div class="loop-item">
                     <div class="mini-label">2 · reveal split</div>
-                    <p class="muted">A simple flattened view of the activation cloud, often later named PCA, shows that true and false activations separate instead of fully overlapping.</p>
+                    <p class="muted">Principal component analysis, or PCA, gives a simple view of the activation cloud and shows whether true and false activations separate instead of fully overlapping.</p>
                   </div>
                   <div class="loop-item">
                     <div class="mini-label">3 · name the line</div>
-                    <p class="muted">One line comes from class averages, later called MM. Another comes from a trained linear classifier, later called LR. The chapter cares about whether those lines tell a believable mechanism story, not only whether they score well on labels.</p>
+                    <p class="muted">One line comes from class averages, difference-of-means or MM. Another comes from a trained linear classifier, logistic regression or LR. The chapter cares about whether those lines tell a believable mechanism story, not only whether they score well on labels.</p>
                   </div>
                 </div>
                 <div class="cloud"><div class="axis"></div></div>
@@ -1040,7 +1040,7 @@
           </div>
 
           <div class="surface tint-plum">
-            <div class="section-label">Wrong intuition → better intuition</div>
+            <div class="section-label">Interpretation guide</div>
             <div class="legend-stack">
               <div class="legend-card">
                 <strong>Wrong intuition</strong>
@@ -1062,17 +1062,17 @@
       <section class="section" id="s3">
         <div class="section-head">
           <div class="eyebrow">03 · evidence progression</div>
-          <h2>The evidence should read like a ladder first, with details tucked behind it</h2>
-          <p class="section-kicker">This keeps the page from turning into card soup. You should feel the strength of the argument before you parse the support table.</p>
+          <h2>What makes the case more convincing, step by step?</h2>
+          <p class="section-kicker">Read the evidence in order of strength: first you see the split, then you locate it, then you test transfer, then you test intervention.</p>
         </div>
 
         <div class="evidence-shell">
           <div class="surface tint-teal">
-            <div class="section-label">Evidence ladder</div>
+            <div class="section-label">How the evidence builds</div>
             <div class="evidence-ladder">
               <div class="evidence-step" data-step="1">
                 <strong>See a truth split in a simple projection</strong>
-                <p class="muted">The notebook’s first striking picture is already geometric: true and false states separate before the strongest causal language arrives. The usual first view is PCA, meaning a simple way to flatten a huge vector cloud into a small picture.</p>
+                <p class="muted">The notebook’s first striking picture is already geometric: true and false states separate before the strongest causal language arrives. PCA, principal component analysis, is the usual first view because it turns a huge vector cloud into a small picture you can actually read.</p>
               </div>
               <div class="evidence-step" data-step="2">
                 <strong>Localize where the signal is strongest</strong>
@@ -1103,7 +1103,7 @@
                   <tbody>
                     <tr>
                       <td><strong>Truth is readable in the chosen final-token state.</strong></td>
-                      <td>True and false examples pull apart in a simple flattened view, often PCA, before the more technical probe comparison starts.</td>
+                      <td>True and false examples pull apart in a simple view, often PCA, before the more technical probe comparison starts.</td>
                       <td>The feature is present in the activations, not invented by the probe.</td>
                     </tr>
                     <tr>
@@ -1127,7 +1127,7 @@
             </div>
 
             <div class="surface soft">
-              <div class="section-label">How to read the section</div>
+              <div class="section-label">Reading rule</div>
               <strong>Think “geometry → location → transfer → intervention.”</strong>
               <p class="muted" style="margin-top: 8px;">If the notebook starts to feel like separate demos, this sequence is the thread that stitches them back into one claim.</p>
             </div>
@@ -1161,8 +1161,8 @@
       <section class="section" id="s4">
         <div class="section-head">
           <div class="eyebrow">04 · contrast case</div>
-          <h2>The chapter gets sharper when MM and LR stop looking like interchangeable lines</h2>
-          <p class="section-kicker">The key correction is not that one is always better. It is that they optimize for different virtues, and the more interpretable line can matter more than the slightly sharper separator.</p>
+          <h2>Why compare MM and LR if both are just straight lines?</h2>
+          <p class="section-kicker">Because they optimize for different things. One is easier to interpret geometrically, while the other is trained to separate labels as well as it can.</p>
         </div>
 
         <div class="contrast-board">
@@ -1173,7 +1173,7 @@
           </div>
 
           <div class="contrast-center">
-            <div class="section-label">Main contrast</div>
+            <div class="section-label">Why the comparison matters</div>
             <strong>The chapter is not just asking which line classifies best.</strong>
             <p class="muted" style="margin-top: 8px;">It is asking which line still tells the most believable story when you push on the model.</p>
           </div>
@@ -1186,7 +1186,7 @@
         </div>
 
         <div class="note-strip">
-          <div class="section-label">Two-minute explanation line</div>
+          <div class="section-label">Short version</div>
           <strong>The public summary is simple: LR may win on labels, while MM may better expose the direction the model actually seems to use.</strong>
         </div>
       </section>
@@ -1194,8 +1194,8 @@
       <section class="section" id="s5">
         <div class="section-head">
           <div class="eyebrow">05 · same recipe, new targets</div>
-          <h2>Later sections mostly change where the property lives, not the overall probing recipe</h2>
-          <p class="section-kicker">Truth, deception, and high-stakes detection all use the same basic recipe: choose the right representation, read a direction, then test whether it generalizes. What changes is where that representation lives, one last token, assistant-only response tokens, or a pooled whole-request view.</p>
+          <h2>What changes in the later sections, and what stays the same?</h2>
+          <p class="section-kicker">The recipe stays the same: choose the right representation, read a direction, then test it. What changes is where the relevant signal lives, in one final token, across an assistant response, or spread across a whole request.</p>
         </div>
 
         <div class="signal-strip" style="margin-bottom: 14px;">
@@ -1223,7 +1223,7 @@
 
         <div class="extension-grid">
           <div class="surface tint-teal extension-main">
-            <div class="section-label">Same workflow, different representation surfaces</div>
+            <div class="section-label">Same probing recipe, different readout sites</div>
             <div class="extension-lane">
               <div class="extension-card truth">
                 <strong>Truth</strong>
@@ -1241,7 +1241,7 @@
           </div>
 
           <div class="surface soft">
-            <div class="section-label">Jargon in context</div>
+            <div class="section-label">Terms worth knowing here</div>
             <strong>AUROC is just “how well does the detector rank risky examples above safe ones?” across many thresholds.</strong>
             <p class="muted" style="margin-top: 8px;">The chapter uses this in the high-stakes section because a detector should rank riskier requests above safer ones instead of only looking good at one arbitrary cutoff. AUROC stands for area under the ROC curve.</p>
             <p class="muted" style="margin-top: 8px;">An attention probe is the matching readout idea: instead of treating every token equally, it learns where to look in the request before making the prediction.</p>
@@ -1252,13 +1252,13 @@
       <section class="section" id="s6">
         <div class="section-head">
           <div class="eyebrow">06 · notebook bridge</div>
-          <h2>Open the notebook expecting a sequence of checks, not a parade of methods</h2>
-          <p class="section-kicker">The best way to stay oriented is to ask what each plot, table, or hook is trying to establish in the larger story.</p>
+          <h2>How should you read the notebook once you open it?</h2>
+          <p class="section-kicker">Treat each figure, table, and hook as one check in a larger argument. Ask what claim it is trying to establish before you get lost in the code.</p>
         </div>
 
         <div class="bridge-grid">
           <div class="surface tint-teal">
-            <div class="section-label">When you hit the figures</div>
+            <div class="section-label">When you see a plot or table</div>
             <div class="notebook-flow">
               <div class="flow-mini">
                 <strong>Projection plot</strong>
@@ -1276,7 +1276,7 @@
           </div>
 
           <div class="surface tint-apricot">
-            <div class="section-label">When you hit the code and hooks</div>
+            <div class="section-label">When you see code or hooks</div>
             <div class="notebook-flow">
               <div class="flow-mini">
                 <strong>Token indexing</strong>
@@ -1300,11 +1300,11 @@
       <section class="section" id="s7">
         <div class="section-head">
           <div class="eyebrow">07 · carry-away mental model</div>
-          <h2>If this page worked, you can explain the chapter before opening the code</h2>
+          <h2>What should you be able to explain before opening the code?</h2>
         </div>
 
         <div class="surface soft" style="margin-bottom: 14px;">
-          <div class="section-label">Failure modes worth remembering</div>
+          <div class="section-label">Common ways to overclaim</div>
           <div class="failure-grid">
             <div class="failure-card">
               <strong>Readable is not the same as used</strong>
@@ -1327,13 +1327,13 @@
 
         <div class="recap-grid">
           <div class="surface tint-plum">
-            <div class="section-label">Two-minute explanation</div>
+            <div class="section-label">2-minute explanation</div>
             <strong>Read the right hidden state, extract the truth-related direction, localize where it is strongest, and patch it back into the model to see whether the answer shifts.</strong>
             <p class="muted" style="margin-top: 10px;">That is the jump from a readable feature to a more plausibly used feature, and it is the real attractor of the chapter. A hidden state is just the model’s internal vector, and patching asks what happens when you edit it.</p>
           </div>
 
           <div class="surface soft">
-            <div class="section-label">What to carry forward</div>
+            <div class="section-label">What to keep in mind</div>
             <div class="legend-stack">
               <div class="recap-card">
                 <strong>Main idea</strong>
